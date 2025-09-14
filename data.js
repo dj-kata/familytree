@@ -27,10 +27,10 @@ const familyData = [
     photo: ""
   },
   { 
-    id: 3, 
+    id: 4, 
     mid: 1, 
     fid: 2, 
-    pids: [4], 
+    pids: [7], 
     name: "つくし", 
     gender: "female", 
     born: "2020/09/03", 
@@ -38,7 +38,7 @@ const familyData = [
     photo: ""
   },
   { 
-    id: 4, 
+    id: 5, 
     mid: 1, 
     fid: 3, 
     name: "だいふく", 
@@ -48,7 +48,7 @@ const familyData = [
     photo: ""
   },
   { 
-    id: 5, 
+    id: 6, 
     mid: 1, 
     fid: 2, 
     name: "もなか", 
@@ -58,8 +58,8 @@ const familyData = [
     photo: ""
   },
   { 
-    id: 6, 
-    pids: [3], 
+    id: 7, 
+    pids: [4], 
     name: "ライト", 
     gender: "male", 
     born: "2021/05/14", 
@@ -67,9 +67,9 @@ const familyData = [
     photo: ""
   },
   { 
-    id: 7, 
-    mid: 3, 
-    fid: 6, 
+    id: 8, 
+    mid: 4, 
+    fid: 7, 
     name: "スミレ", 
     gender: "female", 
     born: "2024/09/11", 
