@@ -330,7 +330,7 @@ const familyData = [
     gender: "female",
     born: "2019/6/12",
     locate: "埼玉こども動物自然公園",
-    img: "https://raw.githubusercontent.com/dj-kata/koala_familytree/refs/heads/main/imgs/fuku.png",
+    img: "https://dj-kata.github.io/koala_familytree/imgs/fuku.png",
   },
   {
     id: 35,
@@ -755,7 +755,7 @@ const familyData = [
     gender: "female",
     born: "2024/5/9",
     locate: "埼玉こども動物自然公園",
-    img: 'https://raw.githubusercontent.com/dj-kata/koala_familytree/refs/heads/main/imgs/sachi.png',
+    img: "https://dj-kata.github.io/koala_familytree/imgs/sachi.png",
   },
   {
     id: 78,
