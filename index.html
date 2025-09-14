@@ -1,6 +1,7 @@
 <!--HTML-->
 <html>
   <head>
+    <div id="tree"></div>
     <script src="./familytree.js"></script> 
     <script>
       let family = new FamilyTree("#tree", {
@@ -14,25 +15,10 @@
               { id: 3, mid: 1, fid: 2, name: "Peter Stevens", gender: "male" }
           ]
       });
-        // DOMが読み込まれた後に実行
-        document.addEventListener('DOMContentLoaded', function() {
-            const nodes = convertToFamilyTreeFormat(familyData);
-            
-            const family = new FamilyTree("#tree", {
-                nodeBinding: {
-                    field_0: "name",
-                    field_1: "birthday"
-                },
-                nodes: [
-                    { id: 1, pids: [2], name: "Amber McKenzie", gender: "female" },
-                    { id: 2, pids: [1], name: "Ava Field", gender: "male" },
-                    { id: 3, mid: 1, fid: 2, name: "Peter Stevens", gender: "male" }
-                ]
-            });
-        });
     </script>
+
   </head>
   <body>
-    <div id="tree"></div>
+
   </body>
 </html>
