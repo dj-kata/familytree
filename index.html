@@ -8,31 +8,47 @@
           field_1: "born",
           photo: "photo"
       },
-      editForm: {
-        titleBinding: "name",
-        photoBinding: "photo",
-        addMoreBtn: 'Add element',
-        addMore: 'Add more elements',
-        addMoreFieldName: 'Element name',
-        generateElementsFromFields: false,
-        elements: [
-            { type: 'textbox', label: 'Full Name', binding: 'name' },
-            { type: 'textbox', label: 'Email Address', binding: 'email' },
-            [
-                { type: 'textbox', label: 'Phone', binding: 'phone' },
-                { type: 'date', label: 'Date Of Birth', binding: 'born' }
-            ],
-            [
-                { type: 'select', options: [{ value: 'bg', text: 'Bulgaria' }, { value: 'ru', text: 'Russia' }, { value: 'gr', text: 'Greece' }], label: 'Country', binding: 'country' },
-                { type: 'textbox', label: 'City', binding: 'city' },
-            ],
-            { type: 'textbox', label: 'Photo Url', binding: 'photo', btn: 'Upload' },
-        ]
-      },
       nodes: [
+          { id: 1, pids: [2], name: "りん", gender: "female", born: "2017/08/23", photo:""},
+          { id: 2, pids: [1], name: "イシン", gender: "male", born: "2021/05/14" , photo:""},
           { id: 1, pids: [2], name: "つくし", gender: "female", born: "2020/09/03", photo:""},
           { id: 2, pids: [1], name: "ライト", gender: "male", born: "2021/05/14" , photo:""},
           { id: 3, mid: 1, fid: 2, name: "スミレ", gender: "female", born: "2024/09/11" , photo:""}
       ]
   });
+
+var options = getOptions();
+
+var chart = new FamilyTree(document.getElementById("tree"), {
+    mouseScrool: FamilyTree.none,
+    scaleInitial: options.scaleInitial,
+    siblingSeparation: 120,
+    template: 'john',
+    nodeBinding: {
+        field_0: "name",
+        field_1: "born",
+        img_0: "img",
+    }
+});
+
+
+chart.load([
+    { id: 1, pids: [2], name: "りん", gender: "female", born: "2017/08/23", photo:""},
+    { id: 2, pids: [1], name: "イシン", gender: "male", born: "2021/05/14" , photo:""},
+    { id: 3, pids: [2], name: "つくし", gender: "female", born: "2020/09/03", photo:""},
+    { id: 4, pids: [1], name: "ライト", gender: "male", born: "2021/05/14" , photo:""},
+    { id: 5, mid: 1, fid: 2, name: "スミレ", gender: "female", born: "2024/09/11" , photo:""},
+]);
+
+function getOptions(){
+    const searchParams = new URLSearchParams(window.location.search);
+    var fit = searchParams.get('fit');
+    var enableSearch = true;
+    var scaleInitial = 1;
+    if (fit == 'yes'){
+        enableSearch = false;
+        scaleInitial = FamilyTree.match.boundary;
+    }
+    return {enableSearch, scaleInitial};
+}
 </script>
