@@ -1,7 +1,7 @@
 const familyData = [
   { 
     id: 1, 
-    pids: [2], 
+    pids: [2,3], 
     name: "りん", 
     gender: "female", 
     born: "2017/08/23", 
@@ -19,6 +19,15 @@ const familyData = [
   },
   { 
     id: 3, 
+    pids: [1], 
+    name: "タイチ", 
+    gender: "male", 
+    born: "2012/05/03", 
+    locate: "東山動植物園",
+    photo: ""
+  },
+  { 
+    id: 3, 
     mid: 1, 
     fid: 2, 
     pids: [4], 
@@ -30,6 +39,26 @@ const familyData = [
   },
   { 
     id: 4, 
+    mid: 1, 
+    fid: 3, 
+    name: "だいふく", 
+    gender: "male", 
+    born: "2022/03/14", 
+    locate: "東山動植物園",
+    photo: ""
+  },
+  { 
+    id: 5, 
+    mid: 1, 
+    fid: 2, 
+    name: "もなか", 
+    gender: "male", 
+    born: "2023/10/20", 
+    locate: "東山動植物園",
+    photo: ""
+  },
+  { 
+    id: 6, 
     pids: [3], 
     name: "ライト", 
     gender: "male", 
@@ -38,9 +67,9 @@ const familyData = [
     photo: ""
   },
   { 
-    id: 5, 
+    id: 7, 
     mid: 3, 
-    fid: 4, 
+    fid: 6, 
     name: "スミレ", 
     gender: "female", 
     born: "2024/09/11", 
