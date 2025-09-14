@@ -1,4 +1,3 @@
-// family-data.js
 const familyData = [
   { 
     id: 1, 
