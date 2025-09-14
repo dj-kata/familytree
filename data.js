@@ -6,6 +6,7 @@ const familyData = [
     name: "りん", 
     gender: "female", 
     born: "2017/08/23", 
+    locate: "東山動植物園",
     photo: ""
   },
   { 
@@ -14,6 +15,7 @@ const familyData = [
     name: "イシン", 
     gender: "male", 
     born: "2021/05/14", 
+    locate: "東山動植物園",
     photo: ""
   },
   { 
@@ -24,6 +26,7 @@ const familyData = [
     name: "つくし", 
     gender: "female", 
     born: "2020/09/03", 
+    locate: "平川動物公園",
     photo: ""
   },
   { 
@@ -32,6 +35,7 @@ const familyData = [
     name: "ライト", 
     gender: "male", 
     born: "2021/05/14", 
+    locate: "平川動物公園",
     photo: ""
   },
   { 
@@ -41,6 +45,7 @@ const familyData = [
     name: "スミレ", 
     gender: "female", 
     born: "2024/09/11", 
+    locate: "平川動物公園",
     photo: ""
   }
 ];
