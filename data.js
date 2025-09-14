@@ -18,7 +18,9 @@ const familyData = [
   {
     id: 2,
     name: "ミリー",
-    pids: [10,85],
+    fid: 0,
+    mid: 87,
+    pids: [85,10],
     gender: "female",
     born: "2000/8/23-2017/1/30",
     locate: "多摩動物公園",
@@ -26,6 +28,8 @@ const familyData = [
   {
     id: 3,
     name: "ピックス",
+    fid: 84,
+    mid: 83,
     pids: [7],
     gender: "male",
     born: "2003/6/28-2019/1/21",
@@ -34,7 +38,7 @@ const familyData = [
   {
     id: 4,
     name: "ティリー",
-    pids: [106,24,86,90,15],
+    pids: [106,90,15,24,86],
     gender: "female",
     born: "2009/12/15-2024/12/25",
     locate: "東山動植物園",
@@ -42,7 +46,9 @@ const familyData = [
   {
     id: 5,
     name: "ウメ",
-    pids: [20,12,45],
+    fid: 93,
+    mid: 18,
+    pids: [12,20,45],
     gender: "female",
     born: "2010/8/5-2022/11/21",
     locate: "王子動物園",
@@ -50,6 +56,8 @@ const familyData = [
   {
     id: 6,
     name: "だいち",
+    fid: 92,
+    mid: 91,
     pids: [],
     gender: "male",
     born: "2013/8/18",
@@ -58,6 +66,8 @@ const familyData = [
   {
     id: 7,
     name: "ミライ",
+    fid: 85,
+    mid: 2,
     pids: [3],
     gender: "female",
     born: "2008/10/25-2020/6/10",
@@ -66,6 +76,8 @@ const familyData = [
   {
     id: 8,
     name: "ウミ",
+    fid: 12,
+    mid: 5,
     pids: [12,20],
     gender: "female",
     born: "2014/6/13",
@@ -74,7 +86,7 @@ const familyData = [
   {
     id: 9,
     name: "ホリー",
-    pids: [15,24,106],
+    pids: [106,15,24],
     gender: "female",
     born: "2013/12/25",
     locate: "東山動植物園",
@@ -90,6 +102,8 @@ const familyData = [
   {
     id: 11,
     name: "ハニー",
+    fid: 90,
+    mid: 96,
     pids: [],
     gender: "female",
     born: "2014/8/3-2024/8/15",
@@ -106,7 +120,9 @@ const familyData = [
   {
     id: 13,
     name: "ユメ",
-    pids: [31,99,104],
+    fid: 102,
+    mid: 101,
+    pids: [99,104,31],
     gender: "female",
     born: "2015/1/2-2025/3/23",
     locate: "平川動物公園",
@@ -114,7 +130,7 @@ const familyData = [
   {
     id: 14,
     name: "ジンベラン",
-    pids: [105,16],
+    pids: [16,105],
     gender: "female",
     born: "2013/2/23-2023/7/8",
     locate: "埼玉こども動物自然公園",
@@ -122,7 +138,9 @@ const familyData = [
   {
     id: 15,
     name: "タイチ",
-    pids: [23,4,27,37,9],
+    fid: 95,
+    mid: 96,
+    pids: [27,9,23,4,37],
     gender: "male",
     born: "2012/5/3-2022/9/29",
     locate: "平川動物公園",
@@ -130,7 +148,9 @@ const familyData = [
   {
     id: 16,
     name: "コロン",
-    pids: [43,14,28,21,25],
+    fid: 102,
+    mid: 100,
+    pids: [28,21,14,25,43],
     gender: "male",
     born: "2014/11/22",
     locate: "金沢動物園",
@@ -138,7 +158,9 @@ const familyData = [
   {
     id: 17,
     name: "チャーリー",
-    pids: [35,26],
+    fid: 86,
+    mid: 4,
+    pids: [26,35],
     gender: "male",
     born: "2014/11/27",
     locate: "多摩動物公園",
@@ -146,6 +168,8 @@ const familyData = [
   {
     id: 18,
     name: "モミジ",
+    fid: 10,
+    mid: 2,
     pids: [93],
     gender: "female",
     born: "2006/5/29-2015/8/21",
@@ -154,6 +178,8 @@ const familyData = [
   {
     id: 19,
     name: "リオ",
+    fid: 104,
+    mid: 100,
     pids: [],
     gender: "female",
     born: "2015/12/10",
@@ -162,7 +188,9 @@ const familyData = [
   {
     id: 20,
     name: "ピーター",
-    pids: [8,5,22],
+    fid: 90,
+    mid: 4,
+    pids: [22,8,5],
     gender: "male",
     born: "2016/3/28",
     locate: "淡路ファームパークイングランドの丘",
@@ -170,6 +198,8 @@ const familyData = [
   {
     id: 21,
     name: "クイン",
+    fid: 88,
+    mid: 98,
     pids: [16],
     gender: "female",
     born: "2015/3/23-2023/5/31",
@@ -178,6 +208,8 @@ const familyData = [
   {
     id: 22,
     name: "オウカ",
+    fid: 12,
+    mid: 8,
     pids: [39,20],
     gender: "female",
     born: "2016/9/25",
@@ -186,7 +218,9 @@ const familyData = [
   {
     id: 23,
     name: "りん",
-    pids: [15,24],
+    fid: 106,
+    mid: 4,
+    pids: [24,15],
     gender: "female",
     born: "2017/8/23",
     locate: "東山動植物園",
@@ -194,7 +228,9 @@ const familyData = [
   {
     id: 24,
     name: "イシン",
-    pids: [27,23,4,9],
+    fid: 104,
+    mid: 13,
+    pids: [23,27,4,9],
     gender: "male",
     born: "2017/5/14",
     locate: "東山動植物園",
@@ -202,6 +238,8 @@ const familyData = [
   {
     id: 25,
     name: "こまち",
+    fid: 106,
+    mid: 9,
     pids: [16],
     gender: "female",
     born: "2017/4/27",
@@ -210,6 +248,8 @@ const familyData = [
   {
     id: 26,
     name: "ぼたん",
+    fid: 45,
+    mid: 5,
     pids: [17],
     gender: "female",
     born: "2017/5/12-2024/12/13",
@@ -218,6 +258,8 @@ const familyData = [
   {
     id: 27,
     name: "ななみ",
+    fid: 15,
+    mid: 9,
     pids: [15,24],
     gender: "female",
     born: "2018/7/7",
@@ -226,6 +268,8 @@ const familyData = [
   {
     id: 28,
     name: "きらら",
+    fid: 15,
+    mid: 4,
     pids: [16],
     gender: "female",
     born: "2018/9/6",
@@ -242,7 +286,9 @@ const familyData = [
   {
     id: 30,
     name: "ヒマワリ",
-    pids: [31,104],
+    fid: 99,
+    mid: 13,
+    pids: [104,31],
     gender: "female",
     born: "2019/6/22",
     locate: "平川動物公園",
@@ -250,7 +296,7 @@ const familyData = [
   {
     id: 31,
     name: "アーチャー",
-    pids: [46,48,13,38,47,30,37],
+    pids: [38,48,46,47,30,37,13],
     gender: "male",
     born: "2019/4/26",
     locate: "平川動物公園",
@@ -258,6 +304,8 @@ const familyData = [
   {
     id: 32,
     name: "ハナ",
+    fid: 20,
+    mid: 22,
     pids: [],
     gender: "female",
     born: "2019/5/20",
@@ -266,6 +314,8 @@ const familyData = [
   {
     id: 33,
     name: "エマ",
+    fid: 20,
+    mid: 8,
     pids: [],
     gender: "female",
     born: "2018/12/6",
@@ -274,6 +324,8 @@ const familyData = [
   {
     id: 34,
     name: "ふく",
+    fid: 105,
+    mid: 98,
     pids: [42],
     gender: "female",
     born: "2019/6/12",
@@ -282,6 +334,8 @@ const familyData = [
   {
     id: 35,
     name: "コハル",
+    fid: 16,
+    mid: 21,
     pids: [17],
     gender: "female",
     born: "2019/4/2",
@@ -290,6 +344,8 @@ const familyData = [
   {
     id: 36,
     name: "つくし",
+    fid: 24,
+    mid: 23,
     pids: [49],
     gender: "female",
     born: "2020/9/3",
@@ -298,7 +354,9 @@ const familyData = [
   {
     id: 37,
     name: "インディコ",
-    pids: [15,31],
+    fid: 24,
+    mid: 4,
+    pids: [31,15],
     gender: "female",
     born: "2019/12/22",
     locate: "平川動物公園",
@@ -306,7 +364,9 @@ const familyData = [
   {
     id: 38,
     name: "キボウ",
-    pids: [31,104],
+    fid: 99,
+    mid: 97,
+    pids: [104,31],
     gender: "female",
     born: "2019/10/17",
     locate: "平川動物公園",
@@ -314,6 +374,8 @@ const familyData = [
   {
     id: 39,
     name: "いぶき",
+    fid: 24,
+    mid: 9,
     pids: [22],
     gender: "male",
     born: "2020/8/27",
@@ -322,6 +384,8 @@ const familyData = [
   {
     id: 40,
     name: "イツキ",
+    fid: 99,
+    mid: 103,
     pids: [],
     gender: "male",
     born: "2020/4/3",
@@ -330,6 +394,8 @@ const familyData = [
   {
     id: 41,
     name: "ワトル",
+    fid: 15,
+    mid: 27,
     pids: [],
     gender: "female",
     born: "2020/5/14",
@@ -338,7 +404,9 @@ const familyData = [
   {
     id: 42,
     name: "ソラ",
-    pids: [51,34],
+    fid: 99,
+    mid: 13,
+    pids: [34,51],
     gender: "male",
     born: "2020/6/14",
     locate: "埼玉こども動物自然公園",
@@ -346,6 +414,8 @@ const familyData = [
   {
     id: 43,
     name: "たんぽぽ",
+    fid: 17,
+    mid: 26,
     pids: [16],
     gender: "female",
     born: "2020/4/26",
@@ -354,6 +424,8 @@ const familyData = [
   {
     id: 44,
     name: "シャイン",
+    fid: 16,
+    mid: 21,
     pids: [55],
     gender: "male",
     born: "2017/8/31-2022/1/6",
@@ -370,6 +442,8 @@ const familyData = [
   {
     id: 46,
     name: "ヒナタ",
+    fid: 104,
+    mid: 30,
     pids: [31],
     gender: "female",
     born: "2021/3/27",
@@ -378,6 +452,8 @@ const familyData = [
   {
     id: 47,
     name: "カナエ",
+    fid: 99,
+    mid: 13,
     pids: [31],
     gender: "female",
     born: "2021/6/13",
@@ -386,6 +462,8 @@ const familyData = [
   {
     id: 48,
     name: "ピース",
+    fid: 104,
+    mid: 97,
     pids: [31],
     gender: "female",
     born: "2021/6/29",
@@ -394,6 +472,8 @@ const familyData = [
   {
     id: 49,
     name: "ライト",
+    fid: 99,
+    mid: 103,
     pids: [36],
     gender: "male",
     born: "2021/5/14",
@@ -402,6 +482,8 @@ const familyData = [
   {
     id: 50,
     name: "シャイニー",
+    fid: 44,
+    mid: 55,
     pids: [],
     gender: "female",
     born: "2021/5/13",
@@ -410,6 +492,8 @@ const familyData = [
   {
     id: 51,
     name: "ミラ",
+    fid: 105,
+    mid: 14,
     pids: [42],
     gender: "female",
     born: "2021/4/30",
@@ -418,6 +502,8 @@ const familyData = [
   {
     id: 52,
     name: "あずま",
+    fid: 16,
+    mid: 25,
     pids: [],
     gender: "female",
     born: "2021/5/18",
@@ -426,6 +512,8 @@ const familyData = [
   {
     id: 53,
     name: "ニーナ",
+    fid: 105,
+    mid: 98,
     pids: [105],
     gender: "female",
     born: "2016/9/27-2020/5/4",
@@ -442,6 +530,8 @@ const familyData = [
   {
     id: 55,
     name: "マイ",
+    fid: 20,
+    mid: 5,
     pids: [44],
     gender: "female",
     born: "2019/5/15-2022/6/21",
@@ -450,6 +540,8 @@ const familyData = [
   {
     id: 56,
     name: "タイヨウ",
+    fid: 15,
+    mid: 37,
     pids: [],
     gender: "male",
     born: "2022/8/11",
@@ -458,6 +550,8 @@ const familyData = [
   {
     id: 57,
     name: "ししお",
+    fid: 15,
+    mid: 9,
     pids: [],
     gender: "male",
     born: "2022/4/4",
@@ -466,6 +560,8 @@ const familyData = [
   {
     id: 58,
     name: "ノゾム",
+    fid: 104,
+    mid: 38,
     pids: [],
     gender: "male",
     born: "2022/2/26",
@@ -474,6 +570,8 @@ const familyData = [
   {
     id: 59,
     name: "おもち",
+    fid: 24,
+    mid: 27,
     pids: [],
     gender: "female",
     born: "2022/3/21",
@@ -490,6 +588,8 @@ const familyData = [
   {
     id: 61,
     name: "だいふく",
+    fid: 15,
+    mid: 23,
     pids: [],
     gender: "male",
     born: "2022/3/14",
@@ -498,6 +598,8 @@ const familyData = [
   {
     id: 62,
     name: "ひなぎく",
+    fid: 17,
+    mid: 26,
     pids: [],
     gender: "female",
     born: "2021/12/15-2025/7/2",
@@ -506,6 +608,8 @@ const familyData = [
   {
     id: 63,
     name: "ハリー",
+    fid: 17,
+    mid: 35,
     pids: [],
     gender: "male",
     born: "2022/4/22",
@@ -514,6 +618,8 @@ const familyData = [
   {
     id: 64,
     name: "きんとき",
+    fid: 16,
+    mid: 28,
     pids: [],
     gender: "male",
     born: "2022/6/25",
@@ -522,6 +628,8 @@ const familyData = [
   {
     id: 65,
     name: "パピー",
+    fid: 3,
+    mid: 7,
     pids: [],
     gender: "female",
     born: "2011/6/23-2013/9/3",
@@ -530,6 +638,8 @@ const familyData = [
   {
     id: 66,
     name: "ニシチ",
+    fid: 105,
+    mid: 53,
     pids: [],
     gender: "male",
     born: "2019/2/7-2021/3/31",
@@ -538,6 +648,8 @@ const familyData = [
   {
     id: 67,
     name: "ツムギ",
+    fid: 31,
+    mid: 13,
     pids: [],
     gender: "female",
     born: "2023/5/13",
@@ -546,6 +658,8 @@ const familyData = [
   {
     id: 68,
     name: "アラタ",
+    fid: 31,
+    mid: 46,
     pids: [],
     gender: "male",
     born: "2023/6/14",
@@ -554,6 +668,8 @@ const familyData = [
   {
     id: 69,
     name: "ナギ",
+    fid: 20,
+    mid: 8,
     pids: [],
     gender: "female",
     born: "2023/7/31",
@@ -562,6 +678,8 @@ const familyData = [
   {
     id: 70,
     name: "アサヒ",
+    fid: 31,
+    mid: 30,
     pids: [],
     gender: "male",
     born: "2022/12/9",
@@ -570,6 +688,8 @@ const familyData = [
   {
     id: 71,
     name: "スミレ",
+    fid: 49,
+    mid: 36,
     pids: [],
     gender: "female",
     born: "2024/9/11",
@@ -578,6 +698,8 @@ const familyData = [
   {
     id: 72,
     name: "カスミ",
+    fid: 31,
+    mid: 30,
     pids: [],
     gender: "female",
     born: "2024/6/1",
@@ -586,6 +708,8 @@ const familyData = [
   {
     id: 73,
     name: "スター",
+    fid: 31,
+    mid: 37,
     pids: [],
     gender: "male",
     born: "2023/11/18",
@@ -594,6 +718,8 @@ const familyData = [
   {
     id: 74,
     name: "チャーボウ",
+    fid: 31,
+    mid: 38,
     pids: [],
     gender: "male",
     born: "2023/10/21",
@@ -602,6 +728,8 @@ const familyData = [
   {
     id: 75,
     name: "オウキ",
+    fid: 39,
+    mid: 22,
     pids: [],
     gender: "male",
     born: "2024/6/12",
@@ -610,6 +738,8 @@ const familyData = [
   {
     id: 76,
     name: "もなか",
+    fid: 24,
+    mid: 23,
     pids: [],
     gender: "male",
     born: "2023/10/20",
@@ -618,6 +748,8 @@ const familyData = [
   {
     id: 77,
     name: "さち",
+    fid: 42,
+    mid: 34,
     pids: [],
     gender: "female",
     born: "2024/5/9",
@@ -626,6 +758,8 @@ const familyData = [
   {
     id: 78,
     name: "ポポロ",
+    fid: 16,
+    mid: 43,
     pids: [],
     gender: "male",
     born: "2024/4/22",
@@ -634,6 +768,8 @@ const familyData = [
   {
     id: 79,
     name: "エイト",
+    fid: 31,
+    mid: 47,
     pids: [],
     gender: "male",
     born: "2024/11/24",
@@ -642,6 +778,8 @@ const familyData = [
   {
     id: 80,
     name: "アース",
+    fid: 31,
+    mid: 48,
     pids: [],
     gender: "male",
     born: "2024/9/20",
@@ -650,6 +788,8 @@ const familyData = [
   {
     id: 81,
     name: "ミラ仔",
+    fid: 42,
+    mid: 51,
     pids: [],
     gender: "male",
     born: "2024/6/23-2025/1/14",
@@ -714,6 +854,8 @@ const familyData = [
   {
     id: 89,
     name: "ジンベラン仔",
+    fid: 16,
+    mid: 14,
     pids: [],
     gender: "male",
     born: "-2023/7/9",
@@ -770,7 +912,7 @@ const familyData = [
   {
     id: 96,
     name: "ライチ",
-    pids: [95,90],
+    pids: [90,95],
     gender: "female",
     born: "",
     locate: "",
@@ -786,7 +928,7 @@ const familyData = [
   {
     id: 98,
     name: "ドリー",
-    pids: [88,105],
+    pids: [105,88],
     gender: "female",
     born: "",
     locate: "",
@@ -794,7 +936,7 @@ const familyData = [
   {
     id: 99,
     name: "バンブラ",
-    pids: [13,103,97],
+    pids: [97,103,13],
     gender: "",
     born: "",
     locate: "",
@@ -802,7 +944,7 @@ const familyData = [
   {
     id: 100,
     name: "ココロ",
-    pids: [102,104],
+    pids: [104,102],
     gender: "",
     born: "",
     locate: "",
@@ -818,7 +960,7 @@ const familyData = [
   {
     id: 102,
     name: "フランク",
-    pids: [101,100],
+    pids: [100,101],
     gender: "",
     born: "",
     locate: "",
@@ -834,7 +976,7 @@ const familyData = [
   {
     id: 104,
     name: "ブンダ",
-    pids: [97,100,13,38,30],
+    pids: [97,38,100,30,13],
     gender: "",
     born: "",
     locate: "",
@@ -842,7 +984,7 @@ const familyData = [
   {
     id: 105,
     name: "コタロウ",
-    pids: [14,53,98],
+    pids: [98,14,53],
     gender: "male",
     born: "",
     locate: "",

@@ -42,6 +42,9 @@ def write_js(koalas):
             pids = [str(ids[k]) for k in tmp.partner]
             pids_str = ",".join(pids)
             f.write(f'    name: "{k}",\n')
+            if tmp.father != '':
+                f.write(f'    fid: {ids[tmp.father]},\n')
+                f.write(f'    mid: {ids[tmp.mother]},\n')
             f.write(f'    pids: [{pids_str}],\n')
             f.write(f'    gender: "{tmp.sex}",\n')
             if tmp.deadday == '':
