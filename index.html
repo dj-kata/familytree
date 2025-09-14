@@ -1,22 +1,21 @@
 <script src="./familytree.js"></script> 
 <div id="tree"></div>
 <script>
-  let family = new FamilyTree("#tree", {
-      // オプション
-      nodeBinding: {
-          field_0: "name",
-          field_1: "born",
-          photo: "photo"
-      },
-      nodes: [
-          { id: 1, pids: [2], name: "りん", gender: "female", born: "2017/08/23", photo:""},
-          { id: 2, pids: [1], name: "イシン", gender: "male", born: "2021/05/14" , photo:""},
-          { id: 1, pids: [2], name: "つくし", gender: "female", born: "2020/09/03", photo:""},
-          { id: 2, pids: [1], name: "ライト", gender: "male", born: "2021/05/14" , photo:""},
-          { id: 3, mid: 1, fid: 2, name: "スミレ", gender: "female", born: "2024/09/11" , photo:""}
-      ]
-  });
-
+  // let family = new FamilyTree("#tree", {
+      オプション
+      // nodeBinding: {
+          // field_0: "name",
+          // field_1: "born",
+          // photo: "photo"
+      // },
+      // nodes: [
+          // { id: 1, pids: [2], name: "りん", gender: "female", born: "2017/08/23", photo:""},
+          // { id: 2, pids: [1], name: "イシン", gender: "male", born: "2021/05/14" , photo:""},
+          // { id: 1, pids: [2], name: "つくし", gender: "female", born: "2020/09/03", photo:""},
+          // { id: 2, pids: [1], name: "ライト", gender: "male", born: "2021/05/14" , photo:""},
+          // { id: 3, mid: 1, fid: 2, name: "スミレ", gender: "female", born: "2024/09/11" , photo:""}
+      // ]
+  // });
 var options = getOptions();
 
 var chart = new FamilyTree(document.getElementById("tree"), {
@@ -33,22 +32,22 @@ var chart = new FamilyTree(document.getElementById("tree"), {
 
 
 chart.load([
-    { id: 1, pids: [2], name: "りん", gender: "female", born: "2017/08/23", photo:""},
-    { id: 2, pids: [1], name: "イシン", gender: "male", born: "2021/05/14" , photo:""},
-    { id: 3, pids: [2], name: "つくし", gender: "female", born: "2020/09/03", photo:""},
-    { id: 4, pids: [1], name: "ライト", gender: "male", born: "2021/05/14" , photo:""},
-    { id: 5, mid: 1, fid: 2, name: "スミレ", gender: "female", born: "2024/09/11" , photo:""},
+  { id: 1, pids: [2], name: "りん", gender: "female", born: "2017/08/23", photo:""},
+  { id: 2, pids: [1], name: "イシン", gender: "male", born: "2021/05/14" , photo:""},
+  { id: 3, mid:1, fid:2, pids: [4], name: "つくし", gender: "female", born: "2020/09/03", photo:""},
+  { id: 4, pids: [3], name: "ライト", gender: "male", born: "2021/05/14" , photo:""},
+  { id: 5, mid: 3, fid: 4, name: "スミレ", gender: "female", born: "2024/09/11" , photo:""},
 ]);
 
 function getOptions(){
-    const searchParams = new URLSearchParams(window.location.search);
-    var fit = searchParams.get('fit');
-    var enableSearch = true;
-    var scaleInitial = 1;
-    if (fit == 'yes'){
-        enableSearch = false;
-        scaleInitial = FamilyTree.match.boundary;
-    }
-    return {enableSearch, scaleInitial};
+  const searchParams = new URLSearchParams(window.location.search);
+  var fit = searchParams.get('fit');
+  var enableSearch = true;
+  var scaleInitial = 1;
+  if (fit == 'yes'){
+    enableSearch = false;
+    scaleInitial = FamilyTree.match.boundary;
+  }
+  return {enableSearch, scaleInitial};
 }
 </script>
