@@ -1,269 +1,39 @@
+
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Family Tree</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-        }
-        
-        #family-chart {
-            width: 100%;
-            height: 600px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            overflow: auto;
-        }
-        
-        .controls {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        button {
-            background: #4CAF50;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            margin: 5px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        
-        button:hover {
-            background: #45a049;
-        }
-        
-        /* Family Chart Node Styling */
-        .f3-node {
-            cursor: pointer;
-        }
-        
-        .f3-node-card {
-            fill: #fff;
-            stroke: #ccc;
-            stroke-width: 1px;
-            rx: 5;
-        }
-        
-        .f3-node-card-male {
-            fill: #e3f2fd;
-            stroke: #1976d2;
-        }
-        
-        .f3-node-card-female {
-            fill: #fce4ec;
-            stroke: #c2185b;
-        }
-        
-        .f3-node-text-name {
-            font-weight: bold;
-            font-size: 14px;
-            fill: #333;
-        }
-        
-        .f3-node-text-data {
-            font-size: 12px;
-            fill: #666;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>my-family-chart</title>
+  <script src="https://unpkg.com/d3@7"></script>
+  <script type="module" src="https://unpkg.com/family-chart@0.8.0-beta.2"></script>
+  <link rel="stylesheet" href="https://unpkg.com/family-chart@0.8.0-beta.2/dist/styles/family-chart.css">
 </head>
 <body>
-    <div class="container">
-        <h1>📋 我が家の家系図</h1>
-        
-        <div class="controls">
-            <button onclick="chart.fit()">全体表示</button>
-            <button onclick="chart.fullscreen()">フルスクリーン</button>
-        </div>
-        
-        <div id="family-chart"></div>
-    </div>
+<div id="FamilyChart" class="f3" style="width:100%;height:900px;margin:auto;background-color:rgb(33,33,33);color:#fff;"></div>
+<script type="module">
 
-    <!-- Family Chart Library -->
-    <script src="https://unpkg.com/family-chart@latest"></script>
-    
-    <script>
-        // 家族データの定義（ここを編集してあなたの家系図にカスタマイズ）
-        const familyData = [
-            // 祖父母世代
-            {
-                id: 'grandfather_p',
-                data: {
-                    first_name: '太郎',
-                    last_name: '田中',
-                    birthday: '1925-03-15',
-                    avatar: '', // 写真のURLがあれば設定
-                    gender: 'M'
-                }
-            },
-            {
-                id: 'grandmother_p',
-                data: {
-                    first_name: '花子',
-                    last_name: '田中',
-                    birthday: '1928-08-22',
-                    avatar: '',
-                    gender: 'F'
-                },
-                rels: {
-                    spouses: ['grandfather_p']
-                }
-            },
-            
-            // 母方祖父母
-            {
-                id: 'grandfather_m',
-                data: {
-                    first_name: '次郎',
-                    last_name: '佐藤',
-                    birthday: '1923-12-10',
-                    avatar: '',
-                    gender: 'M'
-                }
-            },
-            {
-                id: 'grandmother_m',
-                data: {
-                    first_name: '美子',
-                    last_name: '佐藤',
-                    birthday: '1926-05-18',
-                    avatar: '',
-                    gender: 'F'
-                },
-                rels: {
-                    spouses: ['grandfather_m']
-                }
-            },
-            
-            // 両親世代
-            {
-                id: 'father',
-                data: {
-                    first_name: '一郎',
-                    last_name: '田中',
-                    birthday: '1955-07-03',
-                    avatar: '',
-                    gender: 'M'
-                },
-                rels: {
-                    father: 'grandfather_p',
-                    mother: 'grandmother_p'
-                }
-            },
-            {
-                id: 'mother',
-                data: {
-                    first_name: '幸子',
-                    last_name: '田中',
-                    birthday: '1958-11-25',
-                    avatar: '',
-                    gender: 'F'
-                },
-                rels: {
-                    spouses: ['father'],
-                    father: 'grandfather_m',
-                    mother: 'grandmother_m'
-                }
-            },
-            
-            // 子世代
-            {
-                id: 'self',
-                data: {
-                    first_name: 'あなた',
-                    last_name: '田中',
-                    birthday: '1985-04-12',
-                    avatar: '',
-                    gender: 'M' // あなたの性別に応じて'F'に変更
-                },
-                rels: {
-                    father: 'father',
-                    mother: 'mother'
-                }
-            },
-            {
-                id: 'sibling',
-                data: {
-                    first_name: '妹/弟',
-                    last_name: '田中',
-                    birthday: '1987-09-30',
-                    avatar: '',
-                    gender: 'F'
-                },
-                rels: {
-                    father: 'father',
-                    mother: 'mother'
-                }
-            }
-        ];
+fetch('./data.json')
+  .then(res => res.json())
+  .then(data => create(data))
+  .catch(err => console.error(err))
 
-        // Family Chartの初期化
-        const chart = FamilyChart.createTree('#family-chart', {
-            data: familyData,
-            nodeBinding: {
-                field_0: 'first_name',
-                field_1: 'last_name',
-                field_2: 'birthday',
-                img_0: 'avatar'
-            },
-            cardTemplate: {
-                cardSize: [150, 100],
-                // ノードの表示をカスタマイズ
-                nodeUpdate: function(node, person) {
-                    const card = node.select('.f3-node-card');
-                    
-                    if (person.data.gender === 'M') {
-                        card.classed('f3-node-card-male', true);
-                    } else if (person.data.gender === 'F') {
-                        card.classed('f3-node-card-female', true);
-                    }
-                }
-            },
-            // レスポンシブ設定
-            fit: true,
-            zoom: true,
-            // 初期表示設定
-            initial: {
-                x: 0,
-                y: 0,
-                k: 0.8
-            }
-        });
+function create(data) {
+  const f3Chart = f3.createChart('#FamilyChart', data)
+    .setTransitionTime(1000)
+    .setCardXSpacing(250)
+    .setCardYSpacing(150)
 
-        // ウィンドウサイズ変更時の対応
-        window.addEventListener('resize', function() {
-            chart.updateSize();
-        });
+  f3Chart.setCard(f3.CardHtml)
+    .setOnCardUpdate(function(d) {
+      const card_label = this.querySelector('.card-label')
+      card_label.innerHTML = `${d.data.data["first name"]}<br><span style="font-size: 10px;">${d.data.id}</span>`
+    })
 
-        // 家族メンバーをクリックした時のイベント
-        chart.onNodeClick = function(person) {
-            alert(`${person.data.first_name} ${person.data.last_name}\n生年月日: ${person.data.birthday}`);
-        };
+  f3Chart.updateTree({initial: true})
+}
 
-        console.log('Family chart initialized successfully!');
-    </script>
+</script>
+
 </body>
 </html>
