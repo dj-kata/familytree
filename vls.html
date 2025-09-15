@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>改良版コアラ家系図ツール</title>
+    <title>最終版コアラ家系図ツール</title>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
@@ -213,40 +213,6 @@
             font-weight: bold;
         }
 
-        /* カスタムツールチップ */
-        .custom-tooltip {
-            position: absolute;
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            line-height: 1.4;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            border: 2px solid #4caf50;
-            pointer-events: none;
-            z-index: 10000;
-            max-width: 300px;
-            display: none;
-        }
-
-        .custom-tooltip::before {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 20px;
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 8px solid #2c3e50;
-        }
-
-        .custom-tooltip strong {
-            color: #4caf50;
-            font-size: 14px;
-        }
-
         /* vis.jsノードスタイル */
         .vis-network .vis-node.male {
             background-color: #42a5f5 !important;
@@ -352,8 +318,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>改良版コアラ家系図ツール</h1>
-            <p>ノード間隔調整・関連ノードハイライト・マウスホバー詳細表示対応</p>
+            <h1>最終版コアラ家系図ツール</h1>
+            <p>ノード間隔調整・関連ノードハイライト・物理演算制御対応</p>
         </div>
 
         <div class="input-section">
@@ -381,7 +347,7 @@
                 <div class="control-group">
                     <label>レイアウト</label>
                     <select id="layoutType" onchange="updateLayout()">
-                        <option value="hierarchical" selected>階層表示</option>
+                        <option value="hierarchical" selected>階層表示（推奨）</option>
                         <option value="force">力学的配置</option>
                         <option value="circular">円形配置</option>
                     </select>
@@ -414,8 +380,8 @@
                 <div class="control-group">
                     <label>物理演算</label>
                     <select id="physics" onchange="updatePhysics()">
+                        <option value="false" selected>無効（推奨）</option>
                         <option value="true">有効</option>
-                        <option value="false">無効</option>
                     </select>
                 </div>
 
@@ -426,7 +392,7 @@
 
             <div class="highlight-controls">
                 <h4>ハイライト機能</h4>
-                <p>個体をクリックすると、親子関係・パートナー関係が強調表示されます。マウスを乗せると詳細情報が表示されます。</p>
+                <p>個体をクリックすると、親子関係・パートナー関係が強調表示されます。物理演算を無効にすることで、ノード間隔が維持されます。</p>
                 <div class="highlight-status" id="highlightStatus">
                     ハイライト: なし
                 </div>
@@ -459,9 +425,6 @@
         <div id="messages"></div>
         <div class="stats-info" id="statsInfo" style="display:none;"></div>
         <div id="network-container"></div>
-        
-        <!-- カスタムツールチップ -->
-        <div id="customTooltip" class="custom-tooltip"></div>
     </div>
 
     <script>
@@ -474,8 +437,6 @@
         // 初期化
         function initialize() {
             updateDisplayValues();
-            
-            // data.jsを試行読み込み
             loadDataJS();
         }
 
@@ -682,7 +643,7 @@
                     `統計: 総個体数 ${stats.total}匹、オス ${stats.males}匹、メス ${stats.females}匹、繁殖ペア ${stats.breedingPairs}組`;
                 document.getElementById('statsInfo').style.display = 'block';
 
-                showMessage(`家系図を生成しました！（${stats.total}匹）`, 'success');
+                showMessage(`家系図を生成しました（${stats.total}匹）`, 'success');
 
             } catch (error) {
                 showMessage('エラー: ' + error.message, 'error');
@@ -908,13 +869,8 @@
                     shadow: true
                 },
                 layout: getLayoutOptions(),
-                physics: {
-                    enabled: document.getElementById('physics').value === 'true',
-                    stabilization: { iterations: 200 }
-                },
+                physics: getPhysicsOptions(),
                 interaction: {
-                    hover: true,
-                    tooltipDelay: 300,
                     selectConnectedEdges: false
                 }
             };
@@ -922,14 +878,10 @@
             try {
                 network = new vis.Network(container, data, options);
                 
-                // イベントリスナー設定
+                // クリックイベントのみ設定
                 network.on('click', handleNodeClick);
-                network.on('hoverNode', handleNodeHover);
-                network.on('blurNode', handleNodeBlur);
-                network.on('hoverEdge', handleEdgeHover);
-                network.on('blurEdge', handleEdgeBlur);
                 
-                showMessage('ネットワークを描画しました。ノードをクリックまたはマウスオーバーしてください。', 'success');
+                showMessage('ネットワークを描画しました。ノードをクリックして関連を確認してください。', 'success');
             } catch (error) {
                 showMessage('ネットワーク描画エラー: ' + error.message, 'error');
             }
@@ -983,21 +935,25 @@
             }
 
             // 子どもとパートナーをハイライト対象に追加
-            const children = koalaData.filter(k => k.father === selectedNodeId || k.mother === selectedNodeId);
+            const children = koalaData.filter(child => child.father === selectedNodeId || child.mother === selectedNodeId);
             children.forEach(child => {
                 nodesToHighlight.push(child.name);
                 
-                const partner = k.father === selectedNodeId ? k.mother : k.father;
+                // パートナーを特定
+                const partner = child.father === selectedNodeId ? child.mother : child.father;
                 if (partner && !nodesToHighlight.includes(partner)) {
                     nodesToHighlight.push(partner);
                 }
                 
-                const unionNodeId = `union_${[selectedNodeId, partner].sort().join('|')}`;
-                if (nodes.get(unionNodeId)) {
-                    nodesToHighlight.push(unionNodeId);
-                    edgesToHighlight.push(`marriage_${selectedNodeId}_${unionNodeId}`);
-                    edgesToHighlight.push(`marriage_${partner}_${unionNodeId}`);
-                    edgesToHighlight.push(`offspring_${unionNodeId}_${child.name}`);
+                // 結合ノードとエッジを追加
+                if (partner) {
+                    const unionNodeId = `union_${[selectedNodeId, partner].sort().join('|')}`;
+                    if (nodes.get(unionNodeId)) {
+                        nodesToHighlight.push(unionNodeId);
+                        edgesToHighlight.push(`marriage_${selectedNodeId}_${unionNodeId}`);
+                        edgesToHighlight.push(`marriage_${partner}_${unionNodeId}`);
+                        edgesToHighlight.push(`offspring_${unionNodeId}_${child.name}`);
+                    }
                 }
             });
 
@@ -1005,18 +961,21 @@
             updateHighlightStatus(selectedNodeId, nodesToHighlight.length - 1);
         }
 
-        // ハイライト適用
+        // ハイライト適用（最適化版）
         function applyHighlight(nodeIds, edgeIds, selectedId) {
             highlightedElements = [...nodeIds, ...edgeIds];
 
-            // ノードのハイライト
+            // ノードの一括更新用配列
+            const nodeUpdates = [];
             const allNodes = nodes.get();
+            
             allNodes.forEach(node => {
                 if (nodeIds.includes(node.id)) {
                     const isSelected = node.id === selectedId;
-                    nodes.update({
+                    nodeUpdates.push({
                         id: node.id,
                         borderWidth: isSelected ? 6 : 4,
+                        opacity: 1,
                         shadow: {
                             enabled: true,
                             color: '#4caf50',
@@ -1026,7 +985,7 @@
                         }
                     });
                 } else {
-                    nodes.update({
+                    nodeUpdates.push({
                         id: node.id,
                         borderWidth: 2,
                         opacity: 0.3,
@@ -1035,14 +994,17 @@
                 }
             });
 
-            // エッジのハイライト
+            // エッジの一括更新用配列
+            const edgeUpdates = [];
             const allEdges = edges.get();
+            
             allEdges.forEach(edge => {
                 if (edgeIds.includes(edge.id)) {
-                    edges.update({
+                    edgeUpdates.push({
                         id: edge.id,
                         width: edge.width + 2,
                         color: { color: '#4caf50' },
+                        opacity: 1,
                         shadow: {
                             enabled: true,
                             color: '#4caf50',
@@ -1052,135 +1014,73 @@
                         }
                     });
                 } else {
-                    edges.update({
+                    edgeUpdates.push({
                         id: edge.id,
                         opacity: 0.2,
                         shadow: { enabled: false }
                     });
                 }
             });
+
+            // 一括更新を実行（パフォーマンス向上）
+            nodes.update(nodeUpdates);
+            edges.update(edgeUpdates);
         }
 
-        // ハイライトクリア
+        // ハイライトクリア（最適化版）
         function clearHighlight() {
             if (highlightedElements.length === 0) return;
 
-            // ノードのリセット
+            // ノードの一括リセット用配列
+            const nodeUpdates = [];
             const allNodes = nodes.get();
+            
             allNodes.forEach(node => {
-                nodes.update({
+                nodeUpdates.push({
                     id: node.id,
                     borderWidth: 3,
                     opacity: 1,
-                    shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10 }
+                    shadow: { 
+                        enabled: true, 
+                        color: 'rgba(0,0,0,0.5)', 
+                        size: 10,
+                        x: 2,
+                        y: 2
+                    }
                 });
             });
 
-            // エッジのリセット
+            // エッジの一括リセット用配列
+            const edgeUpdates = [];
             const allEdges = edges.get();
+            
             allEdges.forEach(edge => {
                 const originalColor = edge.type === 'marriage' ? '#4caf50' : '#ff9800';
-                edges.update({
+                const originalWidth = edge.type === 'offspring' ? 
+                    parseInt(document.getElementById('edgeWidth').value) - 1 : 
+                    parseInt(document.getElementById('edgeWidth').value);
+                
+                edgeUpdates.push({
                     id: edge.id,
-                    width: edge.type === 'offspring' ? 
-                        parseInt(document.getElementById('edgeWidth').value) - 1 : 
-                        parseInt(document.getElementById('edgeWidth').value),
+                    width: originalWidth,
                     color: { color: originalColor },
                     opacity: 1,
-                    shadow: { enabled: true }
+                    shadow: { 
+                        enabled: true,
+                        color: 'rgba(0,0,0,0.3)',
+                        size: 5,
+                        x: 1,
+                        y: 1
+                    }
                 });
             });
+
+            // 一括更新を実行
+            nodes.update(nodeUpdates);
+            edges.update(edgeUpdates);
 
             highlightedElements = [];
             updateHighlightStatus(null, 0);
-        }
-
-        // マウスホバー時のノード情報表示
-        function handleNodeHover(params) {
-            if (params.node) {
-                const nodeId = params.node;
-                const position = params.pointer.DOM;
-                
-                if (nodeId.startsWith('union_')) {
-                    const coupleKey = nodeId.replace('union_', '');
-                    const [parent1, parent2] = coupleKey.split('|');
-                    const children = koalaData
-                        .filter(k => k.father === parent1 && k.mother === parent2)
-                        .map(k => k.name);
-                    
-                    const content = `
-                        <strong>繁殖ペア</strong><br>
-                        父親: ${parent1}<br>
-                        母親: ${parent2}<br>
-                        子ども: ${children.length}匹<br>
-                        ${children.join(', ') || 'なし'}
-                    `;
-                    showCustomTooltip(content, position);
-                } else {
-                    const koala = koalaData.find(k => k.name === nodeId);
-                    if (koala) {
-                        const birthInfo = koala.birthDate ? parseBirthInfo(koala.birthDate) : { birth: '不明', death: null, age: null };
-                        const childrenCount = koalaData.filter(k => 
-                            k.father === koala.name || k.mother === koala.name
-                        ).length;
-
-                        const content = `
-                            <strong>${koala.name}</strong><br>
-                            性別: ${koala.gender}<br>
-                            ${birthInfo.birth ? `生年月日: ${birthInfo.birth}<br>` : ''}
-                            ${birthInfo.death ? `死亡日: ${birthInfo.death}<br>` : ''}
-                            ${birthInfo.age !== null ? `年齢: ${birthInfo.age}歳<br>` : ''}
-                            ${koala.location ? `現在地: ${koala.location}<br>` : ''}
-                            両親: ${koala.father || '不明'} × ${koala.mother || '不明'}<br>
-                            パートナー: ${koala.partners.length}匹<br>
-                            子ども: ${childrenCount}匹
-                        `;
-                        showCustomTooltip(content, position);
-                    }
-                }
-            }
-        }
-
-        // ノードからマウスが離れた時
-        function handleNodeBlur(params) {
-            hideCustomTooltip();
-        }
-
-        // エッジホバー時の情報表示
-        function handleEdgeHover(params) {
-            if (params.edge) {
-                const edge = edges.get(params.edge);
-                if (edge) {
-                    const position = params.pointer.DOM;
-                    let content = '';
-                    if (edge.type === 'marriage') {
-                        content = `<strong>夫婦関係</strong><br>繁殖ペア`;
-                    } else if (edge.type === 'offspring') {
-                        content = `<strong>親子関係</strong><br>血縁関係`;
-                    }
-                    showCustomTooltip(content, position);
-                }
-            }
-        }
-
-        // エッジからマウスが離れた時
-        function handleEdgeBlur(params) {
-            hideCustomTooltip();
-        }
-
-        // カスタムツールチップ表示
-        function showCustomTooltip(content, position) {
-            const tooltip = document.getElementById('customTooltip');
-            tooltip.innerHTML = content;
-            tooltip.style.display = 'block';
-            tooltip.style.left = Math.min(position.x + 20, window.innerWidth - 320) + 'px';
-            tooltip.style.top = Math.max(position.y - 10, 10) + 'px';
-        }
-
-        // カスタムツールチップ非表示
-        function hideCustomTooltip() {
-            const tooltip = document.getElementById('customTooltip');
-            tooltip.style.display = 'none';
         }
 
         // レイアウトオプション取得
@@ -1211,12 +1111,46 @@
             }
         }
 
+        // 物理演算オプション取得
+        function getPhysicsOptions() {
+            const layoutType = document.getElementById('layoutType').value;
+            const physicsEnabled = document.getElementById('physics').value === 'true';
+            
+            if (layoutType === 'hierarchical') {
+                // 階層レイアウトでは物理演算を無効にしてノードの位置を固定
+                return {
+                    enabled: false,
+                    stabilization: { iterations: 0 }
+                };
+            } else if (physicsEnabled) {
+                // その他のレイアウトで物理演算が有効な場合
+                return {
+                    enabled: true,
+                    stabilization: { iterations: 200 },
+                    solver: 'barnesHut',
+                    barnesHut: {
+                        gravitationalConstant: -2000,
+                        centralGravity: 0.1,
+                        springLength: 200,
+                        springConstant: 0.05,
+                        damping: 0.4
+                    }
+                };
+            } else {
+                // 物理演算無効
+                return {
+                    enabled: false,
+                    stabilization: { iterations: 0 }
+                };
+            }
+        }
+
         // 各種更新関数
         function updateLayout() {
             if (network) {
                 const options = {
                     layout: getLayoutOptions(),
-                    physics: { enabled: document.getElementById('physics').value === 'true' }
+                    physics: getPhysicsOptions()
                 };
                 network.setOptions(options);
                 network.redraw();
@@ -1262,8 +1196,10 @@
 
         function updatePhysics() {
             if (network) {
-                const enabled = document.getElementById('physics').value === 'true';
-                network.setOptions({ physics: { enabled: enabled } });
+                const options = {
+                    physics: getPhysicsOptions()
+                };
+                network.setOptions(options);
             }
         }
 
@@ -1387,7 +1323,6 @@
             highlightedElements = [];
             
             clearMessages();
-            hideCustomTooltip();
             showMessage('すべてクリアしました', 'success');
         }
 
@@ -1404,11 +1339,11 @@
             
             messagesDiv.innerHTML = `<div class="${className}">${text}</div>`;
             
-            setTimeout(() => {
-                if (messagesDiv.innerHTML.includes(text)) {
-                    messagesDiv.innerHTML = '';
-                }
-            }, 6000);
+            // setTimeout(() => {
+            //     if (messagesDiv.innerHTML.includes(text)) {
+            //         messagesDiv.innerHTML = '';
+            //     }
+            // }, 6000);
         }
 
         function clearMessages() {
