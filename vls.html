@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>コアラ一夫多妻制家系図ツール</title>
-    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <title>高度なコアラ家系図ツール（ハイライト・アイコン対応）</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         * {
@@ -15,172 +15,211 @@
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 20px;
-            background: #f0f8ff;
+            background: linear-gradient(135deg, #e8f5e9 0%, #f0f8ff 100%);
         }
 
         .container {
-            max-width: 1600px;
+            max-width: 1800px;
             margin: 0 auto;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            padding: 25px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 35px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            border-radius: 12px;
+            color: white;
         }
 
         .header h1 {
-            color: #2e7d32;
             margin: 0;
-            font-size: 2.2em;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .header p {
-            color: #666;
-            margin: 10px 0;
-            font-size: 1.1em;
+            margin: 10px 0 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
         }
 
         .input-section {
-            background: #e8f5e9;
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 25px;
+            background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 2px solid #4caf50;
         }
 
         .data-info {
             background: #fff3e0;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #ff9800;
         }
 
         .csv-format {
             background: #f5f5f5;
-            padding: 12px;
-            border-radius: 4px;
-            margin: 10px 0;
-            font-family: monospace;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
             font-size: 14px;
             border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+
+        .feature-highlight {
+            background: #e3f2fd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            border-left: 5px solid #2196f3;
         }
 
         textarea {
             width: 100%;
-            height: 200px;
-            font-family: monospace;
+            height: 250px;
+            font-family: 'Courier New', monospace;
             font-size: 14px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            padding: 15px;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
             resize: vertical;
+            line-height: 1.4;
+        }
+
+        textarea:focus {
+            border-color: #4caf50;
+            outline: none;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
         }
 
         .button-group {
-            margin: 15px 0;
+            margin: 20px 0;
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 15px;
         }
 
         button {
-            padding: 12px 20px;
+            padding: 15px 25px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            font-weight: 500;
-            transition: all 0.2s;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn-primary {
-            background: #2e7d32;
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
             color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
         }
 
         .btn-primary:hover {
-            background: #1b5e20;
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #1b5e20, #388e3c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
         }
 
         .btn-secondary {
-            background: #4caf50;
+            background: linear-gradient(135deg, #4caf50, #8bc34a);
             color: white;
         }
 
         .btn-secondary:hover {
-            background: #45a049;
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #388e3c, #689f38);
+            transform: translateY(-2px);
         }
 
         .btn-warning {
-            background: #ff9800;
+            background: linear-gradient(135deg, #ff9800, #ffc107);
             color: white;
         }
 
         .btn-warning:hover {
-            background: #f57c00;
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #f57c00, #ffb300);
+            transform: translateY(-2px);
         }
 
         .btn-danger {
-            background: #f44336;
+            background: linear-gradient(135deg, #f44336, #e57373);
             color: white;
         }
 
         .btn-danger:hover {
-            background: #d32f2f;
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #d32f2f, #f44336);
+            transform: translateY(-2px);
         }
 
         button:disabled {
             background: #cccccc !important;
             cursor: not-allowed;
             transform: none !important;
+            box-shadow: none !important;
         }
 
         .controls-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 25px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
             display: none;
+            border: 2px solid #dee2e6;
         }
 
         .controls-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
         }
 
         .control-group {
             display: flex;
             flex-direction: column;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .control-group label {
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             color: #333;
+            font-size: 14px;
         }
 
         .control-group input,
         .control-group select {
-            padding: 8px 12px;
+            padding: 10px 12px;
             border: 2px solid #ddd;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            border-color: #4caf50;
+            outline: none;
         }
 
         .range-control {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .range-control input[type="range"] {
@@ -188,116 +227,185 @@
             max-width: 150px;
         }
 
+        .range-value {
+            background: #4caf50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: center;
+        }
+
         .legend {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 2px solid #2196f3;
+        }
+
+        .legend h4 {
+            margin: 0 0 15px 0;
+            color: #1976d2;
+            font-size: 18px;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
         }
 
         .legend-item {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            margin-right: 20px;
-            margin-bottom: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .legend-circle {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            margin-right: 8px;
-            border: 2px solid #333;
+            margin-right: 10px;
+            border: 3px solid #333;
+            flex-shrink: 0;
         }
 
         .legend-circle.male {
             background: #42a5f5;
+            border-color: #1976d2;
         }
 
         .legend-circle.female {
             background: #ec407a;
+            border-color: #c2185b;
         }
 
         .legend-circle.unknown {
             background: #bdbdbd;
+            border-color: #757575;
+        }
+
+        .legend-diamond {
+            width: 20px;
+            height: 20px;
+            background: #ff9800;
+            border: 3px solid #f57c00;
+            margin-right: 10px;
+            transform: rotate(45deg);
+            flex-shrink: 0;
         }
 
         #network-container {
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border: 3px solid #4caf50;
+            border-radius: 12px;
             background: white;
-            margin-top: 25px;
-            height: 600px;
+            margin-top: 30px;
+            height: 700px;
             position: relative;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .stats-info {
-            background: #e8f5e9;
-            border: 1px solid #4caf50;
-            border-radius: 6px;
-            padding: 15px;
-            margin: 15px 0;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
             font-weight: bold;
             color: #2e7d32;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
         }
 
         .error-message {
-            background: #ffebee;
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
             border: 2px solid #f44336;
             color: #c62828;
-            border-radius: 6px;
-            padding: 15px;
-            margin: 15px 0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
             font-weight: bold;
         }
 
         .success-message {
-            background: #e8f5e9;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
             border: 2px solid #4caf50;
             color: #2e7d32;
-            border-radius: 6px;
-            padding: 15px;
-            margin: 15px 0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
             font-weight: bold;
         }
 
-        .tooltip-content {
-            background: rgba(0,0,0,0.9);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 6px;
+        .highlight-controls {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #ff9800;
+        }
+
+        .highlight-controls h4 {
+            margin: 0 0 10px 0;
+            color: #f57c00;
+        }
+
+        .highlight-status {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
             font-size: 14px;
-            max-width: 300px;
-            pointer-events: none;
+            color: #1976d2;
+        }
+
+        /* 新しいスタイル：ハイライト効果 */
+        .highlighted-node {
+            filter: brightness(1.3) drop-shadow(0 0 10px #ffeb3b);
+        }
+
+        .highlighted-edge {
+            filter: brightness(1.5) drop-shadow(0 0 5px #ffeb3b);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🐨 コアラ一夫多妻制家系図ツール</h1>
-            <p>動物園のコアラ繁殖関係をネットワーク図で可視化</p>
+            <h1>🐨 高度なコアラ家系図ツール</h1>
+            <p>ハイライト機能・アイコン表示・夫婦結合点対応</p>
         </div>
 
         <div class="input-section">
-            <h3>📝 コアラデータ入力</h3>
+            <h3>📝 コアラデータ入力（アイコン対応）</h3>
             <div class="data-info">
-                <strong>一夫多妻制対応:</strong> 1匹のオスが複数のメスと繁殖する関係を正確に表現
+                <strong>新機能搭載:</strong> 親子ハイライト・個体アイコン表示・夫婦結合点システム
                 <div class="csv-format">
-                    個体名,性別,生年月日,父親,母親,パートナー1,パートナー2,パートナー3,...<br>
-                    マックス,オス,2015-03-20,,,ルナ,サクラ,ハナ<br>
-                    ルナ,メス,2016-05-15,,,マックス,,<br>
-                    サクラ,メス,2017-08-10,,,マックス,,<br>
-                    コタロウ,オス,2020-06-12,マックス,ルナ,,,
+                    個体名,性別,生年月日,父親,母親,アイコン<br>
+                    マックス,オス,2015-03-20,,,https://example.com/koala_male.png<br>
+                    ルナ,メス,2016-05-15,,,https://example.com/koala_female.png<br>
+                    コタロウ,オス,2020-06-12,マックス,ルナ,https://example.com/baby_koala.png
+                </div>
+                <div class="feature-highlight">
+                    <strong>🔥 新機能:</strong>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>親子ハイライト:</strong> 子をクリックすると親もハイライト表示</li>
+                        <li><strong>アイコン表示:</strong> 画像URLを指定して個体の写真を表示</li>
+                        <li><strong>結合点システム:</strong> 夫婦を結合点で繋ぎ、そこから子どもへ線を引く</li>
+                    </ul>
                 </div>
             </div>
             
-            <textarea id="csvInput" placeholder="CSVデータをここに貼り付けてください...&#10;&#10;例:&#10;個体名,性別,生年月日,父親,母親,パートナー1,パートナー2&#10;マックス,オス,2015-03-20,,,ルナ,サクラ&#10;ルナ,メス,2016-05-15,,,マックス,&#10;サクラ,メス,2017-08-10,,,マックス,&#10;コタロウ,オス,2020-06-12,マックス,ルナ,,"></textarea>
+            <textarea id="csvInput" placeholder="CSVデータをここに貼り付けてください...&#10;&#10;例（アイコン付き）:&#10;個体名,性別,生年月日,父親,母親,アイコン&#10;マックス,オス,2015-03-20,,,https://example.com/icons/koala1.png&#10;ルナ,メス,2016-05-15,,,https://example.com/icons/koala2.png&#10;コタロウ,オス,2020-06-12,マックス,ルナ,https://example.com/icons/baby.png"></textarea>
             
             <div class="button-group">
-                <button class="btn-primary" onclick="generateKoalaNetwork()">🐨 家系図を生成</button>
+                <button class="btn-primary" onclick="generateKoalaNetwork()">🌳 家系図を生成</button>
                 <button class="btn-secondary" onclick="loadSampleData()">📝 サンプルデータを読み込む</button>
-                <button class="btn-warning" onclick="exportSvg()" id="exportBtn" disabled>📸 SVGをエクスポート</button>
+                <button class="btn-warning" onclick="exportNetwork()" id="exportBtn" disabled>📸 ネットワークを保存</button>
                 <button class="btn-danger" onclick="clearAll()">🗑️ すべてクリア</button>
             </div>
         </div>
@@ -318,16 +426,16 @@
                 <div class="control-group">
                     <label>ノードサイズ</label>
                     <div class="range-control">
-                        <input type="range" id="nodeSize" min="20" max="80" value="40" oninput="updateNodeSize()">
-                        <span id="nodeSizeValue">40</span>
+                        <input type="range" id="nodeSize" min="30" max="100" value="50" oninput="updateNodeSize()">
+                        <span id="nodeSizeValue" class="range-value">50</span>
                     </div>
                 </div>
                 
                 <div class="control-group">
                     <label>エッジの太さ</label>
                     <div class="range-control">
-                        <input type="range" id="edgeWidth" min="1" max="8" value="3" oninput="updateEdgeWidth()">
-                        <span id="edgeWidthValue">3</span>
+                        <input type="range" id="edgeWidth" min="1" max="10" value="4" oninput="updateEdgeWidth()">
+                        <span id="edgeWidthValue" class="range-value">4</span>
                     </div>
                 </div>
                 
@@ -348,25 +456,44 @@
                 </div>
             </div>
 
+            <div class="highlight-controls">
+                <h4>🔦 ハイライト機能</h4>
+                <p>個体をクリックすると、親子関係がハイライトされます</p>
+                <div class="highlight-status" id="highlightStatus">
+                    ハイライト: なし
+                </div>
+                <button class="btn-warning" onclick="clearHighlight()">🔄 ハイライトをクリア</button>
+            </div>
+
             <div class="legend">
                 <h4>🏷️ 凡例</h4>
-                <div class="legend-item">
-                    <div class="legend-circle male"></div>
-                    <span>オス（繁殖個体）</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-circle female"></div>
-                    <span>メス（繁殖個体）</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-circle unknown"></div>
-                    <span>未成熟・性別不明</span>
-                </div>
-                <div class="legend-item">
-                    <span style="border: 2px solid #4caf50; padding: 2px 8px; border-radius: 4px;">━ 繁殖関係</span>
-                </div>
-                <div class="legend-item">
-                    <span style="border: 2px solid #ff9800; padding: 2px 8px; border-radius: 4px;">━ 親子関係</span>
+                <div class="legend-grid">
+                    <div class="legend-item">
+                        <div class="legend-circle male"></div>
+                        <span>オス（繁殖個体）</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-circle female"></div>
+                        <span>メス（繁殖個体）</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-circle unknown"></div>
+                        <span>未成熟・性別不明</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-diamond"></div>
+                        <span>夫婦結合点</span>
+                    </div>
+                    <div class="legend-item">
+                        <div style="width: 30px; height: 4px; background: #4caf50; margin-right: 10px;"></div>
+                        <span>夫婦関係</span>
+                    </div>
+                    <div class="legend-item">
+                        <div style="width: 30px; height: 3px; background: #ff9800; margin-right: 10px; position: relative;">
+                            <div style="position: absolute; right: -3px; top: -2px; width: 0; height: 0; border-left: 6px solid #ff9800; border-top: 3px solid transparent; border-bottom: 3px solid transparent;"></div>
+                        </div>
+                        <span>親子関係</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -381,33 +508,62 @@
         let koalaData = [];
         let network = null;
         let nodes, edges;
+        let highlightedNodes = [];
+        let highlightedEdges = [];
+        let originalNodeColors = new Map();
+        let originalEdgeColors = new Map();
 
         // 初期化
         function initialize() {
             updateDisplayValues();
+            checkLibrariesLoaded();
+        }
+
+        // ライブラリ読み込み確認
+        function checkLibrariesLoaded() {
+            const statusDiv = document.getElementById('library-status');
+            if (statusDiv) statusDiv.remove();
+
+            const status = document.createElement('div');
+            status.id = 'library-status';
+            status.style.cssText = 'background: #e3f2fd; padding: 15px; margin: 15px 0; border-radius: 8px; font-size: 14px; border: 2px solid #2196f3;';
+            
+            const checks = [];
+            checks.push(typeof vis !== 'undefined' ? '✅ vis.js' : '❌ vis.js');
+            checks.push(typeof Papa !== 'undefined' ? '✅ PapaParse' : '❌ PapaParse');
+            
+            status.innerHTML = `📚 ライブラリ状況: ${checks.join(' | ')}`;
+            
+            if (typeof vis === 'undefined') {
+                status.innerHTML += '<br>⚠️ vis.jsの読み込みに失敗しました。ページを再読み込みしてください。';
+                status.style.background = '#ffebee';
+                status.style.borderColor = '#f44336';
+            }
+            
+            document.querySelector('.header').appendChild(status);
         }
 
         // サンプルデータ読み込み
         function loadSampleData() {
-            const sampleCSV = `個体名,性別,生年月日,父親,母親,パートナー1,パートナー2,パートナー3
-マックス,オス,2015-03-20,,,ルナ,サクラ,ハナ
-ダイキ,オス,2014-08-15,,,ミク,ユリ,
-ルナ,メス,2016-05-15,,,マックス,,
-サクラ,メス,2017-08-10,,,マックス,,
-ハナ,メス,2018-02-28,,,マックス,,
-ミク,メス,2015-12-03,,,ダイキ,,
-ユリ,メス,2016-09-22,,,ダイキ,,
-コタロウ,オス,2020-06-12,マックス,ルナ,,,
-ハルカ,メス,2020-08-25,マックス,サクラ,,,
-タロウ,オス,2021-03-18,マックス,ハナ,,,
-ジロウ,オス,2021-07-30,ダイキ,ミク,,,
-サラ,メス,2021-11-14,ダイキ,ユリ,,,
-チビ太,オス,2022-04-08,マックス,ルナ,,,
-ココ,メス,2022-09-19,マックス,サクラ,,,
-ピーチ,メス,2023-01-25,ダイキ,ミク,,,`;
+            const sampleCSV = `個体名,性別,生年月日,父親,母親,アイコン
+マックス,オス,2015-03-20,,,https://dj-kata.github.io/koala_familytree/imgs/fuku.png
+ダイキ,オス,2014-08-15,,,https://cdn.pixabay.com/photo/2016/10/31/18/14/koala-1786089_960_720.png
+ルナ,メス,2016-05-15,,,https://cdn.pixabay.com/photo/2017/01/20/15/06/koala-1995961_960_720.png
+サクラ,メス,2017-08-10,,,https://cdn.pixabay.com/photo/2017/01/20/15/06/koala-1995961_960_720.png
+ハナ,メス,2018-02-28,,,https://cdn.pixabay.com/photo/2017/01/20/15/06/koala-1995961_960_720.png
+ミク,メス,2015-12-03,,,https://cdn.pixabay.com/photo/2017/01/20/15/06/koala-1995961_960_720.png
+ユリ,メス,2016-09-22,,,https://cdn.pixabay.com/photo/2017/01/20/15/06/koala-1995961_960_720.png
+コタロウ,オス,2020-06-12,マックス,ルナ,https://cdn.pixabay.com/photo/2018/09/22/17/05/koala-3695359_960_720.png
+ハルカ,メス,2020-08-25,マックス,サクラ,https://cdn.pixabay.com/photo/2018/09/22/17/05/koala-3695359_960_720.png
+タロウ,オス,2021-03-18,マックス,ハナ,https://cdn.pixabay.com/photo/2018/09/22/17/05/koala-3695359_960_720.png
+ジロウ,オス,2021-07-30,ダイキ,ミク,https://cdn.pixabay.com/photo/2018/09/22/17/05/koala-3695359_960_720.png
+サラ,メス,2021-11-14,ダイキ,ユリ,https://cdn.pixabay.com/photo/2018/09/22/17/05/koala-3695359_960_720.png
+チビ太,オス,2022-04-08,マックス,ルナ,https://cdn.pixabay.com/photo/2019/01/30/12/19/koala-3965326_960_720.png
+ココ,メス,2022-09-19,マックス,サクラ,https://cdn.pixabay.com/photo/2019/01/30/12/19/koala-3965326_960_720.png
+ピーチ,メス,2023-01-25,ダイキ,ミク,https://cdn.pixabay.com/photo/2019/01/30/12/19/koala-3965326_960_720.png`;
             
             document.getElementById('csvInput').value = sampleCSV;
-            showMessage('コアラの一夫多妻制サンプルデータを読み込みました！（オス2匹、メス5匹、子ども8匹）', 'success');
+            showMessage('アイコン付きコアラデータを読み込みました！（親子ハイライト機能・アイコン表示対応）', 'success');
         }
 
         // CSVデータ解析
@@ -429,21 +585,11 @@
                                 const birthDate = (row['生年月日'] || '').trim();
                                 const father = (row['父親'] || '').trim();
                                 const mother = (row['母親'] || '').trim();
+                                const icon = (row['アイコン'] || row['icon'] || '').trim();
 
                                 if (!name) {
                                     throw new Error(`${index + 2}行目: 個体名が入力されていません`);
                                 }
-
-                                // パートナーリストを取得
-                                const partners = [];
-                                Object.keys(row).forEach(key => {
-                                    if (key.startsWith('パートナー') || key.toLowerCase().startsWith('partner')) {
-                                        const partnerName = (row[key] || '').trim();
-                                        if (partnerName) {
-                                            partners.push(partnerName);
-                                        }
-                                    }
-                                });
 
                                 return {
                                     name,
@@ -451,9 +597,13 @@
                                     birthDate,
                                     father,
                                     mother,
-                                    partners
+                                    icon,
+                                    partners: [] // 後で自動計算
                                 };
                             });
+
+                            // パートナー関係を自動推定
+                            inferPartnerRelationships(koalas);
 
                             resolve(koalas);
                         } catch (error) {
@@ -467,9 +617,47 @@
             });
         }
 
+        // パートナー関係を自動推定
+        function inferPartnerRelationships(koalas) {
+            const partnerPairs = new Map();
+
+            koalas.forEach(koala => {
+                if (koala.father && koala.mother) {
+                    const pairKey = [koala.father, koala.mother].sort().join('|');
+                    if (!partnerPairs.has(pairKey)) {
+                        partnerPairs.set(pairKey, []);
+                    }
+                    partnerPairs.get(pairKey).push(koala.name);
+                }
+            });
+
+            partnerPairs.forEach((children, pairKey) => {
+                const [parent1, parent2] = pairKey.split('|');
+                
+                const koala1 = koalas.find(k => k.name === parent1);
+                const koala2 = koalas.find(k => k.name === parent2);
+                
+                if (koala1 && koala2) {
+                    if (!koala1.partners.includes(parent2)) {
+                        koala1.partners.push(parent2);
+                    }
+                    if (!koala2.partners.includes(parent1)) {
+                        koala2.partners.push(parent1);
+                    }
+                }
+            });
+
+            console.log('推定されたパートナー関係:', partnerPairs);
+        }
+
         // コアラネットワーク生成
         async function generateKoalaNetwork() {
             clearMessages();
+            
+            if (typeof vis === 'undefined') {
+                showMessage('エラー: vis.jsライブラリが読み込まれていません。ページを再読み込みしてください。', 'error');
+                return;
+            }
             
             try {
                 const csvText = document.getElementById('csvInput').value.trim();
@@ -493,10 +681,10 @@
                 // 統計情報表示
                 const stats = calculateKoalaStats(koalaData);
                 document.getElementById('statsInfo').innerHTML = 
-                    `📊 コアラ統計: 総個体数 ${stats.total}匹、オス ${stats.males}匹、メス ${stats.females}匹、繁殖ペア ${stats.breedingPairs}組、世代数 ${stats.generations}世代`;
+                    `📊 コアラ統計: 総個体数 ${stats.total}匹、オス ${stats.males}匹、メス ${stats.females}匹、繁殖ペア ${stats.breedingPairs}組、世代数 ${stats.generations}世代<br>🖼️ アイコン付き個体: ${stats.withIcons}匹`;
                 document.getElementById('statsInfo').style.display = 'block';
 
-                showMessage(`コアラ家系図を生成しました！（${stats.total}匹、繁殖関係は子どもの両親から自動推定）`, 'success');
+                showMessage(`コアラ家系図を生成しました！（${stats.total}匹、ハイライト機能・アイコン表示対応）`, 'success');
 
             } catch (error) {
                 showMessage('エラー: ' + error.message, 'error');
@@ -508,80 +696,154 @@
             const nodeArray = [];
             const edgeArray = [];
             const nodeIds = new Set();
+            const edgeIds = new Set();
 
-            // ノード作成
+            // 個体ノード作成
             koalaData.forEach(koala => {
                 if (!nodeIds.has(koala.name)) {
-                    nodeArray.push({
+                    const nodeConfig = {
                         id: koala.name,
                         label: koala.name,
                         group: getKoalaGroup(koala),
                         title: createTooltip(koala),
-                        data: koala
-                    });
+                        data: koala,
+                        size: parseInt(document.getElementById('nodeSize').value),
+                        font: { size: 14, color: '#333' },
+                        borderWidth: 3
+                    };
+
+                    // アイコンが設定されている場合は画像ノードに
+                    if (koala.icon && koala.icon.startsWith('http')) {
+                        nodeConfig.shape = 'circularImage';
+                        nodeConfig.image = koala.icon;
+                        nodeConfig.borderWidth = 4;
+                        nodeConfig.borderWidthSelected = 6;
+                    } else {
+                        nodeConfig.shape = 'dot';
+                    }
+
+                    nodeArray.push(nodeConfig);
                     nodeIds.add(koala.name);
                 }
             });
 
-            const edgeIds = new Set();
+            // 夫婦ペアを特定し、結合ノードを作成
+            const coupleMap = new Map();
+            const unionNodes = new Map();
 
-            // エッジ作成
             koalaData.forEach(koala => {
-                // 親子関係
-                if (koala.father) {
-                    const edgeId = `parent_${koala.father}_${koala.name}`;
-                    if (!edgeIds.has(edgeId)) {
-                        edgeArray.push({
-                            id: edgeId,
-                            from: koala.father,
-                            to: koala.name,
-                            color: { color: '#ff9800' },
-                            width: 2,
-                            arrows: 'to',
-                            label: '父子',
-                            dashes: false
-                        });
-                        edgeIds.add(edgeId);
+                if (koala.father && koala.mother) {
+                    const coupleKey = [koala.father, koala.mother].sort().join('|');
+                    if (!coupleMap.has(coupleKey)) {
+                        coupleMap.set(coupleKey, []);
                     }
+                    coupleMap.get(coupleKey).push(koala.name);
+                }
+            });
+
+            // 夫婦ペアごとに結合ノードを作成
+            coupleMap.forEach((children, coupleKey) => {
+                const [parent1, parent2] = coupleKey.split('|');
+                const unionNodeId = `union_${coupleKey}`;
+                
+                // 結合ノード作成
+                nodeArray.push({
+                    id: unionNodeId,
+                    label: '',
+                    group: 'union',
+                    title: `${parent1} と ${parent2} の結合点<br>子ども: ${children.join(', ')}`,
+                    shape: 'diamond',
+                    size: 20,
+                    color: {
+                        background: '#ff9800',
+                        border: '#f57c00'
+                    },
+                    font: { size: 10 },
+                    borderWidth: 3
+                });
+                
+                unionNodes.set(coupleKey, unionNodeId);
+                nodeIds.add(unionNodeId);
+
+                // 夫婦を結合ノードに接続
+                const edgeId1 = `marriage_${parent1}_${unionNodeId}`;
+                if (!edgeIds.has(edgeId1)) {
+                    edgeArray.push({
+                        id: edgeId1,
+                        from: parent1,
+                        to: unionNodeId,
+                        color: { color: '#4caf50' },
+                        width: parseInt(document.getElementById('edgeWidth').value),
+                        dashes: false,
+                        arrows: { to: { enabled: false } },
+                        smooth: false,
+                        type: 'marriage'
+                    });
+                    edgeIds.add(edgeId1);
                 }
 
-                if (koala.mother) {
-                    const edgeId = `parent_${koala.mother}_${koala.name}`;
-                    if (!edgeIds.has(edgeId)) {
-                        edgeArray.push({
-                            id: edgeId,
-                            from: koala.mother,
-                            to: koala.name,
-                            color: { color: '#ff9800' },
-                            width: 2,
-                            arrows: 'to',
-                            label: '母子',
-                            dashes: false
-                        });
-                        edgeIds.add(edgeId);
-                    }
+                const edgeId2 = `marriage_${parent2}_${unionNodeId}`;
+                if (!edgeIds.has(edgeId2)) {
+                    edgeArray.push({
+                        id: edgeId2,
+                        from: parent2,
+                        to: unionNodeId,
+                        color: { color: '#4caf50' },
+                        width: parseInt(document.getElementById('edgeWidth').value),
+                        dashes: false,
+                        arrows: { to: { enabled: false } },
+                        smooth: false,
+                        type: 'marriage'
+                    });
+                    edgeIds.add(edgeId2);
                 }
 
-                // 繁殖関係（パートナー）
-                koala.partners.forEach(partner => {
-                    const edgeId = `breeding_${[koala.name, partner].sort().join('_')}`;
-                    if (!edgeIds.has(edgeId)) {
+                // 結合ノードから子どもへの接続
+                children.forEach(child => {
+                    const childEdgeId = `offspring_${unionNodeId}_${child}`;
+                    if (!edgeIds.has(childEdgeId)) {
                         edgeArray.push({
-                            id: edgeId,
-                            from: koala.name,
-                            to: partner,
-                            color: { color: '#4caf50' },
-                            width: 4,
-                            label: '繁殖',
-                            dashes: false
+                            id: childEdgeId,
+                            from: unionNodeId,
+                            to: child,
+                            color: { color: '#ff9800' },
+                            width: parseInt(document.getElementById('edgeWidth').value) - 1,
+                            arrows: { to: { enabled: true, scaleFactor: 1.2 } },
+                            dashes: false,
+                            smooth: { type: 'continuous', roundness: 0.3 },
+                            type: 'offspring'
                         });
-                        edgeIds.add(edgeId);
+                        edgeIds.add(childEdgeId);
                     }
                 });
             });
 
             nodes = new vis.DataSet(nodeArray);
             edges = new vis.DataSet(edgeArray);
+
+            // 元の色を保存
+            originalNodeColors.clear();
+            originalEdgeColors.clear();
+            nodeArray.forEach(node => {
+                originalNodeColors.set(node.id, node.color || getDefaultNodeColor(node.group));
+            });
+            edgeArray.forEach(edge => {
+                originalEdgeColors.set(edge.id, edge.color);
+            });
+        }
+
+        // デフォルトノード色取得
+        function getDefaultNodeColor(group) {
+            switch (group) {
+                case 'male':
+                    return { background: '#42a5f5', border: '#1976d2' };
+                case 'female':
+                    return { background: '#ec407a', border: '#c2185b' };
+                case 'union':
+                    return { background: '#ff9800', border: '#f57c00' };
+                default:
+                    return { background: '#bdbdbd', border: '#757575' };
+            }
         }
 
         // コアラグループ判定
@@ -613,7 +875,19 @@
             }
             
             if (koala.partners.length > 0) {
-                tooltip += `パートナー: ${koala.partners.join(', ')}<br>`;
+                tooltip += `繁殖パートナー: ${koala.partners.join(', ')}<br>`;
+            }
+
+            const childrenCount = koalaData.filter(k => 
+                k.father === koala.name || k.mother === koala.name
+            ).length;
+            
+            if (childrenCount > 0) {
+                tooltip += `子どもの数: ${childrenCount}匹<br>`;
+            }
+
+            if (koala.icon) {
+                tooltip += `アイコン: 有り<br>`;
             }
             
             return tooltip;
@@ -635,26 +909,38 @@
 
         // ネットワーク描画
         function drawNetwork() {
+            if (typeof vis === 'undefined') {
+                showMessage('エラー: vis.jsライブラリが利用できません', 'error');
+                return;
+            }
+
             const container = document.getElementById('network-container');
+            const data = { nodes: nodes, edges: edges };
+            
             const options = {
                 nodes: {
-                    shape: 'dot',
-                    size: parseInt(document.getElementById('nodeSize').value),
                     font: {
                         size: 14,
                         color: '#333'
                     },
-                    borderWidth: 2,
-                    shadow: true
+                    shadow: {
+                        enabled: true,
+                        color: 'rgba(0,0,0,0.2)',
+                        size: 5
+                    }
                 },
                 edges: {
-                    width: parseInt(document.getElementById('edgeWidth').value),
                     font: {
                         size: 12,
                         color: '#666'
                     },
                     smooth: {
                         type: 'continuous'
+                    },
+                    shadow: {
+                        enabled: true,
+                        color: 'rgba(0,0,0,0.1)',
+                        size: 3
                     }
                 },
                 groups: {
@@ -675,30 +961,268 @@
                             background: '#bdbdbd',
                             border: '#757575'
                         }
+                    },
+                    union: {
+                        color: {
+                            background: '#ff9800',
+                            border: '#f57c00'
+                        },
+                        shape: 'diamond'
                     }
                 },
                 layout: getLayoutOptions(),
                 physics: {
-                    enabled: document.getElementById('physics').value === 'true'
+                    enabled: document.getElementById('physics').value === 'true',
+                    stabilization: { iterations: 200 }
                 },
                 interaction: {
                     hover: true,
-                    tooltipDelay: 300
+                    tooltipDelay: 200,
+                    selectConnectedEdges: false
                 }
             };
 
-            network = new vis.Network(container, { nodes, edges }, options);
+            try {
+                network = new vis.Network(container, data, options);
 
-            // イベントリスナー
-            network.on('click', function(params) {
-                if (params.nodes.length > 0) {
-                    const nodeId = params.nodes[0];
-                    const koala = koalaData.find(k => k.name === nodeId);
-                    if (koala) {
-                        showKoalaDetails(koala);
+                // イベントリスナー
+                network.on('click', handleNodeClick);
+                network.on('deselectNode', clearHighlight);
+
+                showMessage('ネットワーク描画完了！個体をクリックして親子関係をハイライトしてください。', 'success');
+            } catch (error) {
+                showMessage('ネットワーク描画エラー: ' + error.message, 'error');
+            }
+        }
+
+        // ノードクリック処理（ハイライト機能）
+        function handleNodeClick(params) {
+            clearHighlight();
+
+            if (params.nodes.length > 0) {
+                const nodeId = params.nodes[0];
+                
+                // 結合ノードがクリックされた場合
+                if (nodeId.startsWith('union_')) {
+                    const coupleKey = nodeId.replace('union_', '');
+                    const [parent1, parent2] = coupleKey.split('|');
+                    const children = koalaData
+                        .filter(k => k.father === parent1 && k.mother === parent2)
+                        .map(k => k.name);
+                    
+                    const details = `
+                        <strong>👫 繁殖ペア情報</strong><br>
+                        父親: ${parent1}<br>
+                        母親: ${parent2}<br>
+                        子どもの数: ${children.length}匹<br>
+                        子ども: ${children.join(', ') || 'なし'}
+                    `;
+                    showMessage(details, 'info');
+                    return;
+                }
+
+                // 通常のコアラノードの場合、親子関係をハイライト
+                const koala = koalaData.find(k => k.name === nodeId);
+                if (koala) {
+                    highlightParentChild(nodeId);
+                    showKoalaDetails(koala);
+                }
+            }
+        }
+
+        // 親子関係ハイライト
+        function highlightParentChild(selectedNodeId) {
+            const koala = koalaData.find(k => k.name === selectedNodeId);
+            if (!koala) return;
+
+            const nodesToHighlight = [selectedNodeId];
+            const edgesToHighlight = [];
+
+            // 親をハイライト対象に追加
+            if (koala.father) {
+                nodesToHighlight.push(koala.father);
+                
+                // 親への結合ノードとエッジを見つける
+                const unionNodeId = `union_${[koala.father, koala.mother].sort().join('|')}`;
+                if (nodes.get(unionNodeId)) {
+                    nodesToHighlight.push(unionNodeId);
+                    nodesToHighlight.push(koala.mother);
+                    
+                    // 親関連のエッジをハイライト
+                    edgesToHighlight.push(`marriage_${koala.father}_${unionNodeId}`);
+                    edgesToHighlight.push(`marriage_${koala.mother}_${unionNodeId}`);
+                    edgesToHighlight.push(`offspring_${unionNodeId}_${selectedNodeId}`);
+                }
+            }
+
+            // 子どもをハイライト対象に追加
+            const children = koalaData.filter(k => k.father === selectedNodeId || k.mother === selectedNodeId);
+            children.forEach(child => {
+                nodesToHighlight.push(child.name);
+                
+                // 子どもへの結合ノードとエッジを見つける
+                const partners = koala.partners;
+                partners.forEach(partner => {
+                    const unionNodeId = `union_${[selectedNodeId, partner].sort().join('|')}`;
+                    if (nodes.get(unionNodeId)) {
+                        nodesToHighlight.push(unionNodeId);
+                        nodesToHighlight.push(partner);
+                        
+                        edgesToHighlight.push(`marriage_${selectedNodeId}_${unionNodeId}`);
+                        edgesToHighlight.push(`marriage_${partner}_${unionNodeId}`);
+                        edgesToHighlight.push(`offspring_${unionNodeId}_${child.name}`);
                     }
+                });
+            });
+
+            // ハイライト適用
+            applyHighlight(nodesToHighlight, edgesToHighlight);
+
+            // ステータス更新
+            updateHighlightStatus(selectedNodeId, nodesToHighlight.length - 1);
+        }
+
+        // ハイライト適用
+        function applyHighlight(nodeIds, edgeIds) {
+            // 全ノードを薄く
+            const allNodes = nodes.get();
+            allNodes.forEach(node => {
+                if (nodeIds.includes(node.id)) {
+                    // ハイライト対象
+                    const highlightColor = node.group === 'union' ? 
+                        { background: '#ffeb3b', border: '#f57c00' } :
+                        { background: '#ffeb3b', border: '#ff9800' };
+                    
+                    nodes.update({
+                        id: node.id,
+                        color: highlightColor,
+                        borderWidth: 6,
+                        shadow: {
+                            enabled: true,
+                            color: 'rgba(255, 235, 59, 0.8)',
+                            size: 10
+                        }
+                    });
+                    highlightedNodes.push(node.id);
+                } else {
+                    // 非ハイライト対象を薄く
+                    const fadedColor = {
+                        background: '#f5f5f5',
+                        border: '#cccccc'
+                    };
+                    nodes.update({
+                        id: node.id,
+                        color: fadedColor,
+                        borderWidth: 1
+                    });
                 }
             });
+
+            // 全エッジを薄く
+            const allEdges = edges.get();
+            allEdges.forEach(edge => {
+                if (edgeIds.includes(edge.id)) {
+                    // ハイライト対象
+                    edges.update({
+                        id: edge.id,
+                        color: { color: '#ffeb3b' },
+                        width: edge.width + 2,
+                        shadow: {
+                            enabled: true,
+                            color: 'rgba(255, 235, 59, 0.8)',
+                            size: 5
+                        }
+                    });
+                    highlightedEdges.push(edge.id);
+                } else {
+                    // 非ハイライト対象を薄く
+                    edges.update({
+                        id: edge.id,
+                        color: { color: '#e0e0e0' },
+                        width: Math.max(1, edge.width - 1)
+                    });
+                }
+            });
+        }
+
+        // ハイライトクリア
+        function clearHighlight() {
+            // ノードを元に戻す
+            highlightedNodes.forEach(nodeId => {
+                const originalColor = originalNodeColors.get(nodeId);
+                const node = nodes.get(nodeId);
+                nodes.update({
+                    id: nodeId,
+                    color: originalColor,
+                    borderWidth: node.shape === 'circularImage' ? 4 : 3,
+                    shadow: {
+                        enabled: true,
+                        color: 'rgba(0,0,0,0.2)',
+                        size: 5
+                    }
+                });
+            });
+
+            // エッジを元に戻す
+            highlightedEdges.forEach(edgeId => {
+                const originalColor = originalEdgeColors.get(edgeId);
+                const originalEdge = edges.get(edgeId);
+                edges.update({
+                    id: edgeId,
+                    color: originalColor,
+                    width: originalEdge.width,
+                    shadow: {
+                        enabled: true,
+                        color: 'rgba(0,0,0,0.1)',
+                        size: 3
+                    }
+                });
+            });
+
+            // 全ノードを元の色に戻す
+            const allNodes = nodes.get();
+            allNodes.forEach(node => {
+                if (!highlightedNodes.includes(node.id)) {
+                    const originalColor = originalNodeColors.get(node.id);
+                    nodes.update({
+                        id: node.id,
+                        color: originalColor,
+                        borderWidth: node.shape === 'circularImage' ? 4 : 3
+                    });
+                }
+            });
+
+            // 全エッジを元の色に戻す
+            const allEdges = edges.get();
+            allEdges.forEach(edge => {
+                if (!highlightedEdges.includes(edge.id)) {
+                    const originalColor = originalEdgeColors.get(edge.id);
+                    edges.update({
+                        id: edge.id,
+                        color: originalColor,
+                        width: edge.width
+                    });
+                }
+            });
+
+            highlightedNodes = [];
+            highlightedEdges = [];
+            
+            updateHighlightStatus(null, 0);
+        }
+
+        // ハイライトステータス更新
+        function updateHighlightStatus(selectedName, relatedCount) {
+            const statusDiv = document.getElementById('highlightStatus');
+            if (selectedName) {
+                statusDiv.innerHTML = `ハイライト: <strong>${selectedName}</strong> と関連個体 ${relatedCount}匹`;
+                statusDiv.style.background = '#fff3e0';
+                statusDiv.style.color = '#f57c00';
+            } else {
+                statusDiv.innerHTML = 'ハイライト: なし';
+                statusDiv.style.background = '#e3f2fd';
+                statusDiv.style.color = '#1976d2';
+            }
         }
 
         // レイアウトオプション取得
@@ -711,13 +1235,18 @@
                         hierarchical: {
                             direction: 'UD',
                             sortMethod: 'directed',
-                            nodeSpacing: 200,
-                            levelSeparation: 150
+                            nodeSpacing: 250,
+                            levelSeparation: 200,
+                            treeSpacing: 300,
+                            blockShifting: true,
+                            edgeMinimization: true,
+                            parentCentralization: true
                         }
                     };
                 case 'force':
                     return {
-                        improvedLayout: true
+                        improvedLayout: true,
+                        randomSeed: 42
                     };
                 case 'circular':
                     return {
@@ -747,9 +1276,13 @@
             const size = parseInt(document.getElementById('nodeSize').value);
             document.getElementById('nodeSizeValue').textContent = size;
             
-            if (network) {
-                network.setOptions({
-                    nodes: { size: size }
+            if (network && nodes) {
+                const allNodes = nodes.get();
+                allNodes.forEach(node => {
+                    nodes.update({
+                        id: node.id,
+                        size: node.group === 'union' ? 20 : size
+                    });
                 });
             }
         }
@@ -759,9 +1292,14 @@
             const width = parseInt(document.getElementById('edgeWidth').value);
             document.getElementById('edgeWidthValue').textContent = width;
             
-            if (network) {
-                network.setOptions({
-                    edges: { width: width }
+            if (network && edges) {
+                const allEdges = edges.get();
+                allEdges.forEach(edge => {
+                    const newWidth = edge.type === 'offspring' ? width - 1 : width;
+                    edges.update({
+                        id: edge.id,
+                        width: newWidth
+                    });
                 });
             }
         }
@@ -785,7 +1323,12 @@
         // ネットワーク全体表示
         function fitNetwork() {
             if (network) {
-                network.fit();
+                network.fit({
+                    animation: {
+                        duration: 1000,
+                        easingFunction: 'easeInOutQuad'
+                    }
+                });
             }
         }
 
@@ -799,7 +1342,10 @@
                 if (maleNodes.length > 0) {
                     network.focus(maleNodes[0], {
                         scale: 1.5,
-                        animation: true
+                        animation: {
+                            duration: 1000,
+                            easingFunction: 'easeInOutQuad'
+                        }
                     });
                 }
             }
@@ -807,13 +1353,24 @@
 
         // コアラ詳細表示
         function showKoalaDetails(koala) {
+            const childrenCount = koalaData.filter(k => 
+                k.father === koala.name || k.mother === koala.name
+            ).length;
+
+            const children = koalaData
+                .filter(k => k.father === koala.name || k.mother === koala.name)
+                .map(k => k.name);
+
             const details = `
                 <strong>🐨 ${koala.name} の詳細情報</strong><br>
                 性別: ${koala.gender}<br>
                 生年月日: ${koala.birthDate || '不明'}<br>
                 両親: ${koala.father || '不明'} × ${koala.mother || '不明'}<br>
-                パートナー数: ${koala.partners.length}匹<br>
-                パートナー: ${koala.partners.join(', ') || 'なし'}
+                繁殖パートナー数: ${koala.partners.length}匹<br>
+                繁殖パートナー: ${koala.partners.join(', ') || 'なし'}<br>
+                子どもの数: ${childrenCount}匹<br>
+                子ども: ${children.join(', ') || 'なし'}<br>
+                アイコン: ${koala.icon ? '有り' : 'なし'}
             `;
             showMessage(details, 'info');
         }
@@ -822,8 +1379,8 @@
         function calculateKoalaStats(data) {
             const males = data.filter(k => getKoalaGroup(k) === 'male').length;
             const females = data.filter(k => getKoalaGroup(k) === 'female').length;
+            const withIcons = data.filter(k => k.icon && k.icon.startsWith('http')).length;
             
-            // 繁殖ペア数計算
             const breedingPairs = new Set();
             data.forEach(koala => {
                 koala.partners.forEach(partner => {
@@ -832,11 +1389,18 @@
                 });
             });
 
-            // 世代数計算（簡易版）
             let generations = 1;
             data.forEach(koala => {
                 if (koala.father || koala.mother) {
                     generations = Math.max(generations, 2);
+                    
+                    // 祖父母がいるかチェック
+                    const father = data.find(k => k.name === koala.father);
+                    const mother = data.find(k => k.name === koala.mother);
+                    if ((father && (father.father || father.mother)) || 
+                        (mother && (mother.father || mother.mother))) {
+                        generations = Math.max(generations, 3);
+                    }
                 }
             });
 
@@ -845,35 +1409,35 @@
                 males,
                 females,
                 breedingPairs: breedingPairs.size,
-                generations
+                generations,
+                withIcons
             };
         }
 
-        // SVGエクスポート（改良版）
-        function exportSvg() {
+        // ネットワークエクスポート
+        function exportNetwork() {
             try {
                 if (!network) {
                     showMessage('家系図が生成されていません', 'error');
                     return;
                 }
 
-                // ネットワーク画面をcanvasとして取得
                 const canvas = network.canvas.body.container.children[0];
                 if (canvas && canvas.toDataURL) {
-                    const dataURL = canvas.toDataURL('image/png');
+                    const dataURL = canvas.toDataURL('image/png', 1.0);
                     const link = document.createElement('a');
                     link.download = `コアラ家系図_${new Date().getTime()}.png`;
                     link.href = dataURL;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    showMessage('画像をダウンロードしました！', 'success');
+                    showMessage('高品質な画像をダウンロードしました！', 'success');
                 } else {
-                    showMessage('このブラウザではエクスポート機能が制限されています。スクリーンショットをお試しください。', 'info');
+                    showMessage('このブラウザではエクスポート機能が制限されています。', 'info');
                 }
             } catch (error) {
                 console.error('Export error:', error);
-                showMessage('エクスポートできませんでした。右クリック → 「名前を付けて画像を保存」をお試しください。', 'info');
+                showMessage('エクスポートできませんでした。スクリーンショットをお試しください。', 'info');
             }
         }
 
@@ -894,6 +1458,10 @@
             koalaData = [];
             nodes = null;
             edges = null;
+            highlightedNodes = [];
+            highlightedEdges = [];
+            originalNodeColors.clear();
+            originalEdgeColors.clear();
             
             clearMessages();
             showMessage('すべてクリアしました', 'success');
@@ -916,15 +1484,36 @@
                 if (messagesDiv.innerHTML.includes(text)) {
                     messagesDiv.innerHTML = '';
                 }
-            }, 5000);
+            }, 6000);
         }
 
         function clearMessages() {
             document.getElementById('messages').innerHTML = '';
         }
 
-        // 初期化実行
-        window.addEventListener('load', initialize);
+        // 初期化実行（ライブラリ読み込み待ち）
+        window.addEventListener('load', function() {
+            setTimeout(initialize, 100);
+        });
+
+        // ライブラリが読み込まれない場合の代替案
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                if (typeof vis === 'undefined') {
+                    console.warn('vis.js loading failed, trying alternative CDN...');
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/vis@4.21.0/dist/vis.min.js';
+                    script.onload = function() {
+                        console.log('Alternative vis.js loaded successfully');
+                        initialize();
+                    };
+                    script.onerror = function() {
+                        showMessage('ライブラリの読み込みに失敗しました。インターネット接続を確認してページを再読み込みしてください。', 'error');
+                    };
+                    document.head.appendChild(script);
+                }
+            }, 1000);
+        });
     </script>
 </body>
 </html>
