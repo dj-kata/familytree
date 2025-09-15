@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高度なコアラ家系図ツール（ハイライト・アイコン対応）</title>
+    <title>CSS管理コアラ家系図ツール</title>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
+        /* ===== 基本スタイル ===== */
         * {
             box-sizing: border-box;
         }
@@ -27,6 +28,7 @@
             padding: 25px;
         }
 
+        /* ===== ヘッダー ===== */
         .header {
             text-align: center;
             margin-bottom: 35px;
@@ -48,6 +50,7 @@
             opacity: 0.9;
         }
 
+        /* ===== 入力セクション ===== */
         .input-section {
             background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
             padding: 30px;
@@ -75,14 +78,6 @@
             overflow-x: auto;
         }
 
-        .feature-highlight {
-            background: #e3f2fd;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 6px;
-            border-left: 5px solid #2196f3;
-        }
-
         textarea {
             width: 100%;
             height: 250px;
@@ -101,6 +96,7 @@
             box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
         }
 
+        /* ===== ボタンスタイル ===== */
         .button-group {
             margin: 20px 0;
             display: flex;
@@ -169,6 +165,7 @@
             box-shadow: none !important;
         }
 
+        /* ===== コントロールセクション ===== */
         .controls-section {
             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
             padding: 25px;
@@ -237,6 +234,81 @@
             text-align: center;
         }
 
+        /* ===== ハイライト制御 ===== */
+        .highlight-controls {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid #4caf50;
+        }
+
+        .highlight-controls h4 {
+            margin: 0 0 15px 0;
+            color: #2e7d32;
+            font-size: 18px;
+        }
+
+        .highlight-status {
+            background: #e3f2fd;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-weight: bold;
+            color: #1976d2;
+            border: 2px solid #2196f3;
+        }
+
+        .highlight-status.active {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-color: #4caf50;
+        }
+
+        /* ===== ネットワークコンテナ ===== */
+        #network-container {
+            border: 3px solid #4caf50;
+            border-radius: 12px;
+            background: white;
+            margin-top: 30px;
+            height: 700px;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* ===== メッセージスタイル ===== */
+        .stats-info {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #2e7d32;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            border: 2px solid #f44336;
+            color: #c62828;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border: 2px solid #4caf50;
+            color: #2e7d32;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        /* ===== 凡例 ===== */
         .legend {
             background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
             padding: 20px;
@@ -290,6 +362,12 @@
             border-color: #757575;
         }
 
+        .legend-circle.highlight-example {
+            background: #42a5f5;
+            border-color: #1976d2;
+            box-shadow: 0 0 15px #4caf50;
+        }
+
         .legend-diamond {
             width: 20px;
             height: 20px;
@@ -300,107 +378,85 @@
             flex-shrink: 0;
         }
 
-        #network-container {
-            border: 3px solid #4caf50;
-            border-radius: 12px;
-            background: white;
-            margin-top: 30px;
-            height: 700px;
-            position: relative;
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
+        /* ===== vis.jsノードのCSSオーバーライド ===== */
+        
+        /* 基本ノードスタイル */
+        .vis-network .vis-node.male {
+            background-color: #42a5f5 !important;
+            border-color: #1976d2 !important;
         }
 
-        .stats-info {
-            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-            border: 2px solid #4caf50;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            font-weight: bold;
-            color: #2e7d32;
-            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+        .vis-network .vis-node.female {
+            background-color: #ec407a !important;
+            border-color: #c2185b !important;
         }
 
-        .error-message {
-            background: linear-gradient(135deg, #ffebee, #ffcdd2);
-            border: 2px solid #f44336;
-            color: #c62828;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            font-weight: bold;
+        .vis-network .vis-node.unknown {
+            background-color: #bdbdbd !important;
+            border-color: #757575 !important;
         }
 
-        .success-message {
-            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-            border: 2px solid #4caf50;
-            color: #2e7d32;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            font-weight: bold;
+        .vis-network .vis-node.union {
+            background-color: #ff9800 !important;
+            border-color: #f57c00 !important;
         }
 
-        .highlight-controls {
-            background: #fff3e0;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border: 2px solid #ff9800;
+        /* ハイライト状態のノード */
+        .vis-network .vis-node.highlighted {
+            box-shadow: 0 0 20px #4caf50 !important;
+            border-width: 5px !important;
         }
 
-        .highlight-controls h4 {
-            margin: 0 0 10px 0;
-            color: #f57c00;
+        /* 非ハイライト状態のノード */
+        .vis-network .vis-node.dimmed {
+            opacity: 0.3 !important;
         }
 
-        .highlight-status {
-            background: #e3f2fd;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 10px 0;
-            font-size: 14px;
-            color: #1976d2;
+        /* ハイライト状態のエッジ */
+        .vis-network .vis-edge.highlighted {
+            stroke: #4caf50 !important;
+            stroke-width: 5px !important;
+            filter: drop-shadow(0 0 8px #4caf50) !important;
         }
 
-        /* 新しいスタイル：ハイライト効果 */
-        .highlighted-node {
-            filter: brightness(1.3) drop-shadow(0 0 10px #ffeb3b);
+        /* 非ハイライト状態のエッジ */
+        .vis-network .vis-edge.dimmed {
+            opacity: 0.2 !important;
         }
 
-        .highlighted-edge {
-            filter: brightness(1.5) drop-shadow(0 0 5px #ffeb3b);
+        /* 基本エッジスタイル */
+        .vis-network .vis-edge.marriage {
+            stroke: #4caf50 !important;
+            stroke-width: 4px !important;
+        }
+
+        .vis-network .vis-edge.offspring {
+            stroke: #ff9800 !important;
+            stroke-width: 3px !important;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🐨 高度なコアラ家系図ツール</h1>
-            <p>ハイライト機能・アイコン表示・夫婦結合点対応</p>
+            <h1>🐨 CSS管理コアラ家系図ツール</h1>
+            <p>完全CSS制御・ハイライト機能・アイコン表示対応</p>
         </div>
 
         <div class="input-section">
-            <h3>📝 コアラデータ入力（アイコン対応）</h3>
+            <h3>📝 コアラデータ入力（CSS完全制御）</h3>
             <div class="data-info">
-                <strong>新機能搭載:</strong> 親子ハイライト・個体アイコン表示・夫婦結合点システム
+                <strong>技術仕様:</strong> JavaScriptはクラス操作のみ、デザインはすべてCSSで管理
                 <div class="csv-format">
                     個体名,性別,生年月日,父親,母親,アイコン<br>
-                    マックス,オス,2015-03-20,,,https://example.com/koala_male.png<br>
-                    ルナ,メス,2016-05-15,,,https://example.com/koala_female.png<br>
-                    コタロウ,オス,2020-06-12,マックス,ルナ,https://example.com/baby_koala.png
+                    マックス,オス,2015-03-20,,,https://example.com/koala1.png<br>
+                    ルナ,メス,2016-05-15,,,https://example.com/koala2.png<br>
+                    コタロウ,オス,2020-06-12,マックス,ルナ,
                 </div>
-                <div class="feature-highlight">
-                    <strong>🔥 新機能:</strong>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li><strong>親子ハイライト:</strong> 子をクリックすると親もハイライト表示</li>
-                        <li><strong>アイコン表示:</strong> 画像URLを指定して個体の写真を表示</li>
-                        <li><strong>結合点システム:</strong> 夫婦を結合点で繋ぎ、そこから子どもへ線を引く</li>
-                    </ul>
-                </div>
+                <p><strong>🎨 ハイライト仕様:</strong> 個体をクリックすると、基本色は変更せずに緑のシャドウのみ追加されます</p>
             </div>
             
-            <textarea id="csvInput" placeholder="CSVデータをここに貼り付けてください...&#10;&#10;例（アイコン付き）:&#10;個体名,性別,生年月日,父親,母親,アイコン&#10;マックス,オス,2015-03-20,,,https://example.com/icons/koala1.png&#10;ルナ,メス,2016-05-15,,,https://example.com/icons/koala2.png&#10;コタロウ,オス,2020-06-12,マックス,ルナ,https://example.com/icons/baby.png"></textarea>
+            <textarea id="csvInput" placeholder="CSVデータをここに貼り付けてください...&#10;&#10;例:&#10;個体名,性別,生年月日,父親,母親,アイコン&#10;マックス,オス,2015-03-20,,,&#10;ルナ,メス,2016-05-15,,,&#10;コタロウ,オス,2020-06-12,マックス,ルナ,"></textarea>
             
             <div class="button-group">
                 <button class="btn-primary" onclick="generateKoalaNetwork()">🌳 家系図を生成</button>
@@ -457,8 +513,9 @@
             </div>
 
             <div class="highlight-controls">
-                <h4>🔦 ハイライト機能</h4>
-                <p>個体をクリックすると、親子関係がハイライトされます</p>
+                <h4>🔦 ハイライト機能（CSS制御）</h4>
+                <p>個体をクリックすると、親子関係が緑のシャドウでハイライトされます。<br>
+                <strong>個体の基本色（オス：青、メス：ピンク）は絶対に変更されません。</strong></p>
                 <div class="highlight-status" id="highlightStatus">
                     ハイライト: なし
                 </div>
@@ -470,11 +527,11 @@
                 <div class="legend-grid">
                     <div class="legend-item">
                         <div class="legend-circle male"></div>
-                        <span>オス（繁殖個体）</span>
+                        <span>オス（青）</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-circle female"></div>
-                        <span>メス（繁殖個体）</span>
+                        <span>メス（ピンク）</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-circle unknown"></div>
@@ -494,6 +551,10 @@
                         </div>
                         <span>親子関係</span>
                     </div>
+                    <div class="legend-item">
+                        <div class="legend-circle highlight-example"></div>
+                        <span>ハイライト時（基本色 + 緑シャドウ）</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -508,10 +569,8 @@
         let koalaData = [];
         let network = null;
         let nodes, edges;
-        let highlightedNodes = [];
-        let highlightedEdges = [];
-        let originalNodeColors = new Map();
-        let originalEdgeColors = new Map();
+        let highlightedNodeIds = [];
+        let highlightedEdgeIds = [];
 
         // 初期化
         function initialize() {
@@ -546,24 +605,24 @@
         // サンプルデータ読み込み
         function loadSampleData() {
             const sampleCSV = `個体名,性別,生年月日,父親,母親,アイコン
-マックス,オス,2015-03-20,,,https://dj-kata.github.io/koala_familytree/imgs/fuku.png
-ダイキ,オス,2014-08-15,,,https://cdn.pixabay.com/photo/2016/10/31/18/14/koala-1786089_960_720.png
-ルナ,メス,2016-05-15,,,https://cdn.pixabay.com/photo/2017/01/20/15/06/koala-1995961_960_720.png
-サクラ,メス,2017-08-10,,,https://cdn.pixabay.com/photo/2017/01/20/15/06/koala-1995961_960_720.png
-ハナ,メス,2018-02-28,,,https://cdn.pixabay.com/photo/2017/01/20/15/06/koala-1995961_960_720.png
-ミク,メス,2015-12-03,,,https://cdn.pixabay.com/photo/2017/01/20/15/06/koala-1995961_960_720.png
-ユリ,メス,2016-09-22,,,https://cdn.pixabay.com/photo/2017/01/20/15/06/koala-1995961_960_720.png
-コタロウ,オス,2020-06-12,マックス,ルナ,https://cdn.pixabay.com/photo/2018/09/22/17/05/koala-3695359_960_720.png
-ハルカ,メス,2020-08-25,マックス,サクラ,https://cdn.pixabay.com/photo/2018/09/22/17/05/koala-3695359_960_720.png
-タロウ,オス,2021-03-18,マックス,ハナ,https://cdn.pixabay.com/photo/2018/09/22/17/05/koala-3695359_960_720.png
-ジロウ,オス,2021-07-30,ダイキ,ミク,https://cdn.pixabay.com/photo/2018/09/22/17/05/koala-3695359_960_720.png
-サラ,メス,2021-11-14,ダイキ,ユリ,https://cdn.pixabay.com/photo/2018/09/22/17/05/koala-3695359_960_720.png
-チビ太,オス,2022-04-08,マックス,ルナ,https://cdn.pixabay.com/photo/2019/01/30/12/19/koala-3965326_960_720.png
-ココ,メス,2022-09-19,マックス,サクラ,https://cdn.pixabay.com/photo/2019/01/30/12/19/koala-3965326_960_720.png
-ピーチ,メス,2023-01-25,ダイキ,ミク,https://cdn.pixabay.com/photo/2019/01/30/12/19/koala-3965326_960_720.png`;
+マックス,オス,2015-03-20,,,
+ダイキ,オス,2014-08-15,,,
+ルナ,メス,2016-05-15,,,
+サクラ,メス,2017-08-10,,,
+ハナ,メス,2018-02-28,,,
+ミク,メス,2015-12-03,,,
+ユリ,メス,2016-09-22,,,
+コタロウ,オス,2020-06-12,マックス,ルナ,
+ハルカ,メス,2020-08-25,マックス,サクラ,
+タロウ,オス,2021-03-18,マックス,ハナ,
+ジロウ,オス,2021-07-30,ダイキ,ミク,
+サラ,メス,2021-11-14,ダイキ,ユリ,
+チビ太,オス,2022-04-08,マックス,ルナ,
+ココ,メス,2022-09-19,マックス,サクラ,
+ピーチ,メス,2023-01-25,ダイキ,ミク,`;
             
             document.getElementById('csvInput').value = sampleCSV;
-            showMessage('アイコン付きコアラデータを読み込みました！（親子ハイライト機能・アイコン表示対応）', 'success');
+            showMessage('CSS管理対応のコアラデータを読み込みました！（ハイライト時も基本色維持）', 'success');
         }
 
         // CSVデータ解析
@@ -598,13 +657,11 @@
                                     father,
                                     mother,
                                     icon,
-                                    partners: [] // 後で自動計算
+                                    partners: []
                                 };
                             });
 
-                            // パートナー関係を自動推定
                             inferPartnerRelationships(koalas);
-
                             resolve(koalas);
                         } catch (error) {
                             reject(error);
@@ -646,8 +703,6 @@
                     }
                 }
             });
-
-            console.log('推定されたパートナー関係:', partnerPairs);
         }
 
         // コアラネットワーク生成
@@ -674,17 +729,15 @@
                 createNetworkData();
                 drawNetwork();
 
-                // UI更新
                 document.getElementById('controlsSection').style.display = 'block';
                 document.getElementById('exportBtn').disabled = false;
 
-                // 統計情報表示
                 const stats = calculateKoalaStats(koalaData);
                 document.getElementById('statsInfo').innerHTML = 
-                    `📊 コアラ統計: 総個体数 ${stats.total}匹、オス ${stats.males}匹、メス ${stats.females}匹、繁殖ペア ${stats.breedingPairs}組、世代数 ${stats.generations}世代<br>🖼️ アイコン付き個体: ${stats.withIcons}匹`;
+                    `📊 コアラ統計: 総個体数 ${stats.total}匹、オス ${stats.males}匹、メス ${stats.females}匹、繁殖ペア ${stats.breedingPairs}組、世代数 ${stats.generations}世代`;
                 document.getElementById('statsInfo').style.display = 'block';
 
-                showMessage(`コアラ家系図を生成しました！（${stats.total}匹、ハイライト機能・アイコン表示対応）`, 'success');
+                showMessage(`家系図を生成しました！（${stats.total}匹、CSS完全制御・ハイライト対応）`, 'success');
 
             } catch (error) {
                 showMessage('エラー: ' + error.message, 'error');
@@ -707,17 +760,12 @@
                         group: getKoalaGroup(koala),
                         title: createTooltip(koala),
                         data: koala,
-                        size: parseInt(document.getElementById('nodeSize').value),
-                        font: { size: 14, color: '#333' },
-                        borderWidth: 3
+                        size: parseInt(document.getElementById('nodeSize').value)
                     };
 
-                    // アイコンが設定されている場合は画像ノードに
                     if (koala.icon && koala.icon.startsWith('http')) {
                         nodeConfig.shape = 'circularImage';
                         nodeConfig.image = koala.icon;
-                        nodeConfig.borderWidth = 4;
-                        nodeConfig.borderWidthSelected = 6;
                     } else {
                         nodeConfig.shape = 'dot';
                     }
@@ -727,9 +775,8 @@
                 }
             });
 
-            // 夫婦ペアを特定し、結合ノードを作成
+            // 夫婦ペアと結合ノード作成
             const coupleMap = new Map();
-            const unionNodes = new Map();
 
             koalaData.forEach(koala => {
                 if (koala.father && koala.mother) {
@@ -741,62 +788,36 @@
                 }
             });
 
-            // 夫婦ペアごとに結合ノードを作成
             coupleMap.forEach((children, coupleKey) => {
                 const [parent1, parent2] = coupleKey.split('|');
                 const unionNodeId = `union_${coupleKey}`;
                 
-                // 結合ノード作成
                 nodeArray.push({
                     id: unionNodeId,
                     label: '',
                     group: 'union',
                     title: `${parent1} と ${parent2} の結合点<br>子ども: ${children.join(', ')}`,
                     shape: 'diamond',
-                    size: 20,
-                    color: {
-                        background: '#ff9800',
-                        border: '#f57c00'
-                    },
-                    font: { size: 10 },
-                    borderWidth: 3
+                    size: 20
                 });
                 
-                unionNodes.set(coupleKey, unionNodeId);
                 nodeIds.add(unionNodeId);
 
                 // 夫婦を結合ノードに接続
-                const edgeId1 = `marriage_${parent1}_${unionNodeId}`;
-                if (!edgeIds.has(edgeId1)) {
-                    edgeArray.push({
-                        id: edgeId1,
-                        from: parent1,
-                        to: unionNodeId,
-                        color: { color: '#4caf50' },
-                        width: parseInt(document.getElementById('edgeWidth').value),
-                        dashes: false,
-                        arrows: { to: { enabled: false } },
-                        smooth: false,
-                        type: 'marriage'
-                    });
-                    edgeIds.add(edgeId1);
-                }
-
-                const edgeId2 = `marriage_${parent2}_${unionNodeId}`;
-                if (!edgeIds.has(edgeId2)) {
-                    edgeArray.push({
-                        id: edgeId2,
-                        from: parent2,
-                        to: unionNodeId,
-                        color: { color: '#4caf50' },
-                        width: parseInt(document.getElementById('edgeWidth').value),
-                        dashes: false,
-                        arrows: { to: { enabled: false } },
-                        smooth: false,
-                        type: 'marriage'
-                    });
-                    edgeIds.add(edgeId2);
-                }
+                ['marriage_' + parent1 + '_' + unionNodeId, 'marriage_' + parent2 + '_' + unionNodeId].forEach((edgeId, index) => {
+                    if (!edgeIds.has(edgeId)) {
+                        edgeArray.push({
+                            id: edgeId,
+                            from: index === 0 ? parent1 : parent2,
+                            to: unionNodeId,
+                            width: parseInt(document.getElementById('edgeWidth').value),
+                            type: 'marriage',
+                            arrows: { to: { enabled: false } },
+                            smooth: false
+                        });
+                        edgeIds.add(edgeId);
+                    }
+                });
 
                 // 結合ノードから子どもへの接続
                 children.forEach(child => {
@@ -806,12 +827,10 @@
                             id: childEdgeId,
                             from: unionNodeId,
                             to: child,
-                            color: { color: '#ff9800' },
                             width: parseInt(document.getElementById('edgeWidth').value) - 1,
+                            type: 'offspring',
                             arrows: { to: { enabled: true, scaleFactor: 1.2 } },
-                            dashes: false,
-                            smooth: { type: 'continuous', roundness: 0.3 },
-                            type: 'offspring'
+                            smooth: { type: 'continuous', roundness: 0.3 }
                         });
                         edgeIds.add(childEdgeId);
                     }
@@ -820,30 +839,6 @@
 
             nodes = new vis.DataSet(nodeArray);
             edges = new vis.DataSet(edgeArray);
-
-            // 元の色を保存
-            originalNodeColors.clear();
-            originalEdgeColors.clear();
-            nodeArray.forEach(node => {
-                originalNodeColors.set(node.id, node.color || getDefaultNodeColor(node.group));
-            });
-            edgeArray.forEach(edge => {
-                originalEdgeColors.set(edge.id, edge.color);
-            });
-        }
-
-        // デフォルトノード色取得
-        function getDefaultNodeColor(group) {
-            switch (group) {
-                case 'male':
-                    return { background: '#42a5f5', border: '#1976d2' };
-                case 'female':
-                    return { background: '#ec407a', border: '#c2185b' };
-                case 'union':
-                    return { background: '#ff9800', border: '#f57c00' };
-                default:
-                    return { background: '#bdbdbd', border: '#757575' };
-            }
         }
 
         // コアラグループ判定
@@ -909,66 +904,19 @@
 
         // ネットワーク描画
         function drawNetwork() {
-            if (typeof vis === 'undefined') {
-                showMessage('エラー: vis.jsライブラリが利用できません', 'error');
-                return;
-            }
-
             const container = document.getElementById('network-container');
             const data = { nodes: nodes, edges: edges };
             
             const options = {
                 nodes: {
-                    font: {
-                        size: 14,
-                        color: '#333'
-                    },
-                    shadow: {
-                        enabled: true,
-                        color: 'rgba(0,0,0,0.2)',
-                        size: 5
-                    }
+                    font: { size: 14 },
+                    borderWidth: 3,
+                    shadow: true
                 },
                 edges: {
-                    font: {
-                        size: 12,
-                        color: '#666'
-                    },
-                    smooth: {
-                        type: 'continuous'
-                    },
-                    shadow: {
-                        enabled: true,
-                        color: 'rgba(0,0,0,0.1)',
-                        size: 3
-                    }
-                },
-                groups: {
-                    male: {
-                        color: {
-                            background: '#42a5f5',
-                            border: '#1976d2'
-                        }
-                    },
-                    female: {
-                        color: {
-                            background: '#ec407a',
-                            border: '#c2185b'
-                        }
-                    },
-                    unknown: {
-                        color: {
-                            background: '#bdbdbd',
-                            border: '#757575'
-                        }
-                    },
-                    union: {
-                        color: {
-                            background: '#ff9800',
-                            border: '#f57c00'
-                        },
-                        shape: 'diamond'
-                    }
+                    font: { size: 12 },
+                    smooth: { type: 'continuous' },
+                    shadow: true
                 },
                 layout: getLayoutOptions(),
                 physics: {
@@ -984,25 +932,20 @@
 
             try {
                 network = new vis.Network(container, data, options);
-
-                // イベントリスナー
                 network.on('click', handleNodeClick);
-                network.on('deselectNode', clearHighlight);
-
                 showMessage('ネットワーク描画完了！個体をクリックして親子関係をハイライトしてください。', 'success');
             } catch (error) {
                 showMessage('ネットワーク描画エラー: ' + error.message, 'error');
             }
         }
 
-        // ノードクリック処理（ハイライト機能）
+        // ノードクリック処理（CSS制御ハイライト）
         function handleNodeClick(params) {
             clearHighlight();
 
             if (params.nodes.length > 0) {
                 const nodeId = params.nodes[0];
                 
-                // 結合ノードがクリックされた場合
                 if (nodeId.startsWith('union_')) {
                     const coupleKey = nodeId.replace('union_', '');
                     const [parent1, parent2] = coupleKey.split('|');
@@ -1021,7 +964,6 @@
                     return;
                 }
 
-                // 通常のコアラノードの場合、親子関係をハイライト
                 const koala = koalaData.find(k => k.name === nodeId);
                 if (koala) {
                     highlightParentChild(nodeId);
@@ -1030,7 +972,7 @@
             }
         }
 
-        // 親子関係ハイライト
+        // 親子関係ハイライト（CSS制御）
         function highlightParentChild(selectedNodeId) {
             const koala = koalaData.find(k => k.name === selectedNodeId);
             if (!koala) return;
@@ -1042,13 +984,11 @@
             if (koala.father) {
                 nodesToHighlight.push(koala.father);
                 
-                // 親への結合ノードとエッジを見つける
                 const unionNodeId = `union_${[koala.father, koala.mother].sort().join('|')}`;
                 if (nodes.get(unionNodeId)) {
                     nodesToHighlight.push(unionNodeId);
                     nodesToHighlight.push(koala.mother);
                     
-                    // 親関連のエッジをハイライト
                     edgesToHighlight.push(`marriage_${koala.father}_${unionNodeId}`);
                     edgesToHighlight.push(`marriage_${koala.mother}_${unionNodeId}`);
                     edgesToHighlight.push(`offspring_${unionNodeId}_${selectedNodeId}`);
@@ -1060,7 +1000,6 @@
             children.forEach(child => {
                 nodesToHighlight.push(child.name);
                 
-                // 子どもへの結合ノードとエッジを見つける
                 const partners = koala.partners;
                 partners.forEach(partner => {
                     const unionNodeId = `union_${[selectedNodeId, partner].sort().join('|')}`;
@@ -1075,71 +1014,58 @@
                 });
             });
 
-            // ハイライト適用
-            applyHighlight(nodesToHighlight, edgesToHighlight);
-
-            // ステータス更新
+            applyCSSHighlight(nodesToHighlight, edgesToHighlight);
             updateHighlightStatus(selectedNodeId, nodesToHighlight.length - 1);
         }
 
-        // ハイライト適用
-        function applyHighlight(nodeIds, edgeIds) {
-            // 全ノードを薄く
+        // CSSクラスによるハイライト適用（エッジは直接スタイル指定）
+        function applyCSSHighlight(nodeIds, edgeIds) {
+            highlightedNodeIds = nodeIds;
+            highlightedEdgeIds = edgeIds;
+
+            // ノードはCSS制御
             const allNodes = nodes.get();
             allNodes.forEach(node => {
                 if (nodeIds.includes(node.id)) {
-                    // ハイライト対象
-                    const highlightColor = node.group === 'union' ? 
-                        { background: '#ffeb3b', border: '#f57c00' } :
-                        { background: '#ffeb3b', border: '#ff9800' };
-                    
+                    // ハイライト対象ノード：CSSクラス使用
                     nodes.update({
                         id: node.id,
-                        color: highlightColor,
-                        borderWidth: 6,
-                        shadow: {
-                            enabled: true,
-                            color: 'rgba(255, 235, 59, 0.8)',
-                            size: 10
-                        }
+                        className: `${node.group} highlighted`
                     });
-                    highlightedNodes.push(node.id);
                 } else {
-                    // 非ハイライト対象を薄く
-                    const fadedColor = {
-                        background: '#f5f5f5',
-                        border: '#cccccc'
-                    };
+                    // 非ハイライト対象ノード：CSSクラス使用
                     nodes.update({
                         id: node.id,
-                        color: fadedColor,
-                        borderWidth: 1
+                        className: `${node.group} dimmed`
                     });
                 }
             });
 
-            // 全エッジを薄く
+            // エッジは直接スタイル指定（vis.jsの制約のため）
             const allEdges = edges.get();
             allEdges.forEach(edge => {
                 if (edgeIds.includes(edge.id)) {
-                    // ハイライト対象
+                    // ハイライト対象エッジ：緑色で強調
                     edges.update({
                         id: edge.id,
-                        color: { color: '#ffeb3b' },
+                        color: { color: '#4caf50' },
                         width: edge.width + 2,
                         shadow: {
                             enabled: true,
-                            color: 'rgba(255, 235, 59, 0.8)',
-                            size: 5
+                            color: '#4caf50',
+                            size: 8,
+                            x: 0,
+                            y: 0
                         }
                     });
-                    highlightedEdges.push(edge.id);
                 } else {
-                    // 非ハイライト対象を薄く
+                    // 非ハイライト対象エッジ：薄いグレー
                     edges.update({
                         id: edge.id,
                         color: { color: '#e0e0e0' },
-                        width: Math.max(1, edge.width - 1)
+                        width: Math.max(1, edge.width - 1),
+                        shadow: { enabled: false },
+                        opacity: 0.3
                     });
                 }
             });
@@ -1147,66 +1073,26 @@
 
         // ハイライトクリア
         function clearHighlight() {
-            // ノードを元に戻す
-            highlightedNodes.forEach(nodeId => {
-                const originalColor = originalNodeColors.get(nodeId);
-                const node = nodes.get(nodeId);
-                nodes.update({
-                    id: nodeId,
-                    color: originalColor,
-                    borderWidth: node.shape === 'circularImage' ? 4 : 3,
-                    shadow: {
-                        enabled: true,
-                        color: 'rgba(0,0,0,0.2)',
-                        size: 5
-                    }
-                });
-            });
-
-            // エッジを元に戻す
-            highlightedEdges.forEach(edgeId => {
-                const originalColor = originalEdgeColors.get(edgeId);
-                const originalEdge = edges.get(edgeId);
-                edges.update({
-                    id: edgeId,
-                    color: originalColor,
-                    width: originalEdge.width,
-                    shadow: {
-                        enabled: true,
-                        color: 'rgba(0,0,0,0.1)',
-                        size: 3
-                    }
-                });
-            });
-
-            // 全ノードを元の色に戻す
+            // 全ノードのクラスをリセット
             const allNodes = nodes.get();
             allNodes.forEach(node => {
-                if (!highlightedNodes.includes(node.id)) {
-                    const originalColor = originalNodeColors.get(node.id);
-                    nodes.update({
-                        id: node.id,
-                        color: originalColor,
-                        borderWidth: node.shape === 'circularImage' ? 4 : 3
-                    });
-                }
+                nodes.update({
+                    id: node.id,
+                    className: node.group
+                });
             });
 
-            // 全エッジを元の色に戻す
+            // 全エッジのクラスをリセット
             const allEdges = edges.get();
             allEdges.forEach(edge => {
-                if (!highlightedEdges.includes(edge.id)) {
-                    const originalColor = originalEdgeColors.get(edge.id);
-                    edges.update({
-                        id: edge.id,
-                        color: originalColor,
-                        width: edge.width
-                    });
-                }
+                edges.update({
+                    id: edge.id,
+                    className: edge.type
+                });
             });
 
-            highlightedNodes = [];
-            highlightedEdges = [];
+            highlightedNodeIds = [];
+            highlightedEdgeIds = [];
             
             updateHighlightStatus(null, 0);
         }
@@ -1216,12 +1102,10 @@
             const statusDiv = document.getElementById('highlightStatus');
             if (selectedName) {
                 statusDiv.innerHTML = `ハイライト: <strong>${selectedName}</strong> と関連個体 ${relatedCount}匹`;
-                statusDiv.style.background = '#fff3e0';
-                statusDiv.style.color = '#f57c00';
+                statusDiv.className = 'highlight-status active';
             } else {
                 statusDiv.innerHTML = 'ハイライト: なし';
-                statusDiv.style.background = '#e3f2fd';
-                statusDiv.style.color = '#1976d2';
+                statusDiv.className = 'highlight-status';
             }
         }
 
@@ -1244,14 +1128,9 @@
                         }
                     };
                 case 'force':
-                    return {
-                        improvedLayout: true,
-                        randomSeed: 42
-                    };
+                    return { improvedLayout: true, randomSeed: 42 };
                 case 'circular':
-                    return {
-                        randomSeed: 2
-                    };
+                    return { randomSeed: 2 };
                 default:
                     return {};
             }
@@ -1262,9 +1141,7 @@
             if (network) {
                 const options = {
                     layout: getLayoutOptions(),
-                    physics: {
-                        enabled: document.getElementById('physics').value === 'true'
-                    }
+                    physics: { enabled: document.getElementById('physics').value === 'true' }
                 };
                 network.setOptions(options);
                 network.redraw();
@@ -1308,9 +1185,7 @@
         function updatePhysics() {
             if (network) {
                 const enabled = document.getElementById('physics').value === 'true';
-                network.setOptions({
-                    physics: { enabled: enabled }
-                });
+                network.setOptions({ physics: { enabled: enabled } });
             }
         }
 
@@ -1324,10 +1199,7 @@
         function fitNetwork() {
             if (network) {
                 network.fit({
-                    animation: {
-                        duration: 1000,
-                        easingFunction: 'easeInOutQuad'
-                    }
+                    animation: { duration: 1000, easingFunction: 'easeInOutQuad' }
                 });
             }
         }
@@ -1342,10 +1214,7 @@
                 if (maleNodes.length > 0) {
                     network.focus(maleNodes[0], {
                         scale: 1.5,
-                        animation: {
-                            duration: 1000,
-                            easingFunction: 'easeInOutQuad'
-                        }
+                        animation: { duration: 1000, easingFunction: 'easeInOutQuad' }
                     });
                 }
             }
@@ -1379,7 +1248,6 @@
         function calculateKoalaStats(data) {
             const males = data.filter(k => getKoalaGroup(k) === 'male').length;
             const females = data.filter(k => getKoalaGroup(k) === 'female').length;
-            const withIcons = data.filter(k => k.icon && k.icon.startsWith('http')).length;
             
             const breedingPairs = new Set();
             data.forEach(koala => {
@@ -1394,7 +1262,6 @@
                 if (koala.father || koala.mother) {
                     generations = Math.max(generations, 2);
                     
-                    // 祖父母がいるかチェック
                     const father = data.find(k => k.name === koala.father);
                     const mother = data.find(k => k.name === koala.mother);
                     if ((father && (father.father || father.mother)) || 
@@ -1409,8 +1276,7 @@
                 males,
                 females,
                 breedingPairs: breedingPairs.size,
-                generations,
-                withIcons
+                generations
             };
         }
 
@@ -1436,7 +1302,6 @@
                     showMessage('このブラウザではエクスポート機能が制限されています。', 'info');
                 }
             } catch (error) {
-                console.error('Export error:', error);
                 showMessage('エクスポートできませんでした。スクリーンショットをお試しください。', 'info');
             }
         }
@@ -1458,10 +1323,8 @@
             koalaData = [];
             nodes = null;
             edges = null;
-            highlightedNodes = [];
-            highlightedEdges = [];
-            originalNodeColors.clear();
-            originalEdgeColors.clear();
+            highlightedNodeIds = [];
+            highlightedEdgeIds = [];
             
             clearMessages();
             showMessage('すべてクリアしました', 'success');
@@ -1491,25 +1354,19 @@
             document.getElementById('messages').innerHTML = '';
         }
 
-        // 初期化実行（ライブラリ読み込み待ち）
+        // 初期化実行
         window.addEventListener('load', function() {
             setTimeout(initialize, 100);
         });
 
-        // ライブラリが読み込まれない場合の代替案
+        // 代替ライブラリ読み込み
         window.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
                 if (typeof vis === 'undefined') {
-                    console.warn('vis.js loading failed, trying alternative CDN...');
                     const script = document.createElement('script');
                     script.src = 'https://cdn.jsdelivr.net/npm/vis@4.21.0/dist/vis.min.js';
-                    script.onload = function() {
-                        console.log('Alternative vis.js loaded successfully');
-                        initialize();
-                    };
-                    script.onerror = function() {
-                        showMessage('ライブラリの読み込みに失敗しました。インターネット接続を確認してページを再読み込みしてください。', 'error');
-                    };
+                    script.onload = () => initialize();
+                    script.onerror = () => showMessage('ライブラリの読み込みに失敗しました。', 'error');
                     document.head.appendChild(script);
                 }
             }, 1000);
