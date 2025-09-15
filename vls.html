@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コアラ一夫多妻制家系図ツール</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f8ff;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2e7d32;
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        .header p {
+            color: #666;
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .input-section {
+            background: #e8f5e9;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .data-info {
+            background: #fff3e0;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #ff9800;
+        }
+
+        .csv-format {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+            border: 1px solid #ddd;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            font-family: monospace;
+            font-size: 14px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            resize: vertical;
+        }
+
+        .button-group {
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #2e7d32;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1b5e20;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #f57c00;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background: #cccccc !important;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .controls-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .control-group input,
+        .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .range-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .range-control input[type="range"] {
+            flex: 1;
+            max-width: 150px;
+        }
+
+        .legend {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 20px;
+            margin-bottom: 10px;
+        }
+
+        .legend-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 2px solid #333;
+        }
+
+        .legend-circle.male {
+            background: #42a5f5;
+        }
+
+        .legend-circle.female {
+            background: #ec407a;
+        }
+
+        .legend-circle.unknown {
+            background: #bdbdbd;
+        }
+
+        #network-container {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            margin-top: 25px;
+            height: 600px;
+            position: relative;
+        }
+
+        .stats-info {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .error-message {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            color: #c62828;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            color: #2e7d32;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .tooltip-content {
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            max-width: 300px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐨 コアラ一夫多妻制家系図ツール</h1>
+            <p>動物園のコアラ繁殖関係をネットワーク図で可視化</p>
+        </div>
+
+        <div class="input-section">
+            <h3>📝 コアラデータ入力</h3>
+            <div class="data-info">
+                <strong>一夫多妻制対応:</strong> 1匹のオスが複数のメスと繁殖する関係を正確に表現
+                <div class="csv-format">
+                    個体名,性別,生年月日,父親,母親,パートナー1,パートナー2,パートナー3,...<br>
+                    マックス,オス,2015-03-20,,,ルナ,サクラ,ハナ<br>
+                    ルナ,メス,2016-05-15,,,マックス,,<br>
+                    サクラ,メス,2017-08-10,,,マックス,,<br>
+                    コタロウ,オス,2020-06-12,マックス,ルナ,,,
+                </div>
+            </div>
+            
+            <textarea id="csvInput" placeholder="CSVデータをここに貼り付けてください...&#10;&#10;例:&#10;個体名,性別,生年月日,父親,母親,パートナー1,パートナー2&#10;マックス,オス,2015-03-20,,,ルナ,サクラ&#10;ルナ,メス,2016-05-15,,,マックス,&#10;サクラ,メス,2017-08-10,,,マックス,&#10;コタロウ,オス,2020-06-12,マックス,ルナ,,"></textarea>
+            
+            <div class="button-group">
+                <button class="btn-primary" onclick="generateKoalaNetwork()">🐨 家系図を生成</button>
+                <button class="btn-secondary" onclick="loadSampleData()">📝 サンプルデータを読み込む</button>
+                <button class="btn-warning" onclick="exportSvg()" id="exportBtn" disabled>📸 SVGをエクスポート</button>
+                <button class="btn-danger" onclick="clearAll()">🗑️ すべてクリア</button>
+            </div>
+        </div>
+
+        <div class="controls-section" id="controlsSection">
+            <h3>🎛️ 表示設定</h3>
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label>レイアウト</label>
+                    <select id="layoutType" onchange="updateLayout()">
+                        <option value="hierarchical">階層表示</option>
+                        <option value="force">力学的配置</option>
+                        <option value="circular">円形配置</option>
+                        <option value="random">ランダム配置</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>ノードサイズ</label>
+                    <div class="range-control">
+                        <input type="range" id="nodeSize" min="20" max="80" value="40" oninput="updateNodeSize()">
+                        <span id="nodeSizeValue">40</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>エッジの太さ</label>
+                    <div class="range-control">
+                        <input type="range" id="edgeWidth" min="1" max="8" value="3" oninput="updateEdgeWidth()">
+                        <span id="edgeWidthValue">3</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>物理演算</label>
+                    <select id="physics" onchange="updatePhysics()">
+                        <option value="true">有効</option>
+                        <option value="false">無効</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <button class="btn-secondary" onclick="fitNetwork()">🔍 全体を表示</button>
+                </div>
+
+                <div class="control-group">
+                    <button class="btn-secondary" onclick="focusOnMales()">♂ オスに注目</button>
+                </div>
+            </div>
+
+            <div class="legend">
+                <h4>🏷️ 凡例</h4>
+                <div class="legend-item">
+                    <div class="legend-circle male"></div>
+                    <span>オス（繁殖個体）</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-circle female"></div>
+                    <span>メス（繁殖個体）</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-circle unknown"></div>
+                    <span>未成熟・性別不明</span>
+                </div>
+                <div class="legend-item">
+                    <span style="border: 2px solid #4caf50; padding: 2px 8px; border-radius: 4px;">━ 繁殖関係</span>
+                </div>
+                <div class="legend-item">
+                    <span style="border: 2px solid #ff9800; padding: 2px 8px; border-radius: 4px;">━ 親子関係</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="messages"></div>
+        <div class="stats-info" id="statsInfo" style="display:none;"></div>
+        <div id="network-container"></div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let koalaData = [];
+        let network = null;
+        let nodes, edges;
+
+        // 初期化
+        function initialize() {
+            updateDisplayValues();
+        }
+
+        // サンプルデータ読み込み
+        function loadSampleData() {
+            const sampleCSV = `個体名,性別,生年月日,父親,母親,パートナー1,パートナー2,パートナー3
+マックス,オス,2015-03-20,,,ルナ,サクラ,ハナ
+ダイキ,オス,2014-08-15,,,ミク,ユリ,
+ルナ,メス,2016-05-15,,,マックス,,
+サクラ,メス,2017-08-10,,,マックス,,
+ハナ,メス,2018-02-28,,,マックス,,
+ミク,メス,2015-12-03,,,ダイキ,,
+ユリ,メス,2016-09-22,,,ダイキ,,
+コタロウ,オス,2020-06-12,マックス,ルナ,,,
+ハルカ,メス,2020-08-25,マックス,サクラ,,,
+タロウ,オス,2021-03-18,マックス,ハナ,,,
+ジロウ,オス,2021-07-30,ダイキ,ミク,,,
+サラ,メス,2021-11-14,ダイキ,ユリ,,,
+チビ太,オス,2022-04-08,マックス,ルナ,,,
+ココ,メス,2022-09-19,マックス,サクラ,,,
+ピーチ,メス,2023-01-25,ダイキ,ミク,,,`;
+            
+            document.getElementById('csvInput').value = sampleCSV;
+            showMessage('コアラの一夫多妻制サンプルデータを読み込みました！（オス2匹、メス5匹、子ども8匹）', 'success');
+        }
+
+        // CSVデータ解析
+        function parseKoalaData(csvText) {
+            return new Promise((resolve, reject) => {
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        try {
+                            if (results.errors.length > 0) {
+                                reject(new Error('CSV解析エラー: ' + results.errors[0].message));
+                                return;
+                            }
+
+                            const koalas = results.data.map((row, index) => {
+                                const name = (row['個体名'] || row['名前'] || '').trim();
+                                const gender = (row['性別'] || '').trim();
+                                const birthDate = (row['生年月日'] || '').trim();
+                                const father = (row['父親'] || '').trim();
+                                const mother = (row['母親'] || '').trim();
+
+                                if (!name) {
+                                    throw new Error(`${index + 2}行目: 個体名が入力されていません`);
+                                }
+
+                                // パートナーリストを取得
+                                const partners = [];
+                                Object.keys(row).forEach(key => {
+                                    if (key.startsWith('パートナー') || key.toLowerCase().startsWith('partner')) {
+                                        const partnerName = (row[key] || '').trim();
+                                        if (partnerName) {
+                                            partners.push(partnerName);
+                                        }
+                                    }
+                                });
+
+                                return {
+                                    name,
+                                    gender,
+                                    birthDate,
+                                    father,
+                                    mother,
+                                    partners
+                                };
+                            });
+
+                            resolve(koalas);
+                        } catch (error) {
+                            reject(error);
+                        }
+                    },
+                    error: function(error) {
+                        reject(new Error('CSV読み込みエラー: ' + error.message));
+                    }
+                });
+            });
+        }
+
+        // コアラネットワーク生成
+        async function generateKoalaNetwork() {
+            clearMessages();
+            
+            try {
+                const csvText = document.getElementById('csvInput').value.trim();
+                if (!csvText) {
+                    throw new Error('CSVデータを入力してください');
+                }
+
+                koalaData = await parseKoalaData(csvText);
+                
+                if (koalaData.length === 0) {
+                    throw new Error('有効なデータが見つかりません');
+                }
+
+                createNetworkData();
+                drawNetwork();
+
+                // UI更新
+                document.getElementById('controlsSection').style.display = 'block';
+                document.getElementById('exportBtn').disabled = false;
+
+                // 統計情報表示
+                const stats = calculateKoalaStats(koalaData);
+                document.getElementById('statsInfo').innerHTML = 
+                    `📊 コアラ統計: 総個体数 ${stats.total}匹、オス ${stats.males}匹、メス ${stats.females}匹、繁殖ペア ${stats.breedingPairs}組、世代数 ${stats.generations}世代`;
+                document.getElementById('statsInfo').style.display = 'block';
+
+                showMessage(`コアラ家系図を生成しました！（${stats.total}匹）`, 'success');
+
+            } catch (error) {
+                showMessage('エラー: ' + error.message, 'error');
+            }
+        }
+
+        // ネットワークデータ作成
+        function createNetworkData() {
+            const nodeArray = [];
+            const edgeArray = [];
+            const nodeIds = new Set();
+
+            // ノード作成
+            koalaData.forEach(koala => {
+                if (!nodeIds.has(koala.name)) {
+                    nodeArray.push({
+                        id: koala.name,
+                        label: koala.name,
+                        group: getKoalaGroup(koala),
+                        title: createTooltip(koala),
+                        data: koala
+                    });
+                    nodeIds.add(koala.name);
+                }
+            });
+
+            const edgeIds = new Set();
+
+            // エッジ作成
+            koalaData.forEach(koala => {
+                // 親子関係
+                if (koala.father) {
+                    const edgeId = `parent_${koala.father}_${koala.name}`;
+                    if (!edgeIds.has(edgeId)) {
+                        edgeArray.push({
+                            id: edgeId,
+                            from: koala.father,
+                            to: koala.name,
+                            color: { color: '#ff9800' },
+                            width: 2,
+                            arrows: 'to',
+                            label: '父子',
+                            dashes: false
+                        });
+                        edgeIds.add(edgeId);
+                    }
+                }
+
+                if (koala.mother) {
+                    const edgeId = `parent_${koala.mother}_${koala.name}`;
+                    if (!edgeIds.has(edgeId)) {
+                        edgeArray.push({
+                            id: edgeId,
+                            from: koala.mother,
+                            to: koala.name,
+                            color: { color: '#ff9800' },
+                            width: 2,
+                            arrows: 'to',
+                            label: '母子',
+                            dashes: false
+                        });
+                        edgeIds.add(edgeId);
+                    }
+                }
+
+                // 繁殖関係（パートナー）
+                koala.partners.forEach(partner => {
+                    const edgeId = `breeding_${[koala.name, partner].sort().join('_')}`;
+                    if (!edgeIds.has(edgeId)) {
+                        edgeArray.push({
+                            id: edgeId,
+                            from: koala.name,
+                            to: partner,
+                            color: { color: '#4caf50' },
+                            width: 4,
+                            label: '繁殖',
+                            dashes: false
+                        });
+                        edgeIds.add(edgeId);
+                    }
+                });
+            });
+
+            nodes = new vis.DataSet(nodeArray);
+            edges = new vis.DataSet(edgeArray);
+        }
+
+        // コアラグループ判定
+        function getKoalaGroup(koala) {
+            if (koala.gender === 'オス' || koala.gender === '♂' || koala.gender.toLowerCase() === 'male') {
+                return 'male';
+            } else if (koala.gender === 'メス' || koala.gender === '♀' || koala.gender.toLowerCase() === 'female') {
+                return 'female';
+            } else {
+                return 'unknown';
+            }
+        }
+
+        // ツールチップ作成
+        function createTooltip(koala) {
+            let tooltip = `<strong>${koala.name}</strong><br>`;
+            tooltip += `性別: ${koala.gender}<br>`;
+            
+            if (koala.birthDate) {
+                const age = calculateAge(koala.birthDate);
+                tooltip += `生年月日: ${koala.birthDate} (${age}歳)<br>`;
+            }
+            
+            if (koala.father || koala.mother) {
+                tooltip += `両親: `;
+                if (koala.father) tooltip += `父 ${koala.father} `;
+                if (koala.mother) tooltip += `母 ${koala.mother}`;
+                tooltip += `<br>`;
+            }
+            
+            if (koala.partners.length > 0) {
+                tooltip += `パートナー: ${koala.partners.join(', ')}<br>`;
+            }
+            
+            return tooltip;
+        }
+
+        // 年齢計算
+        function calculateAge(birthDate) {
+            const birth = new Date(birthDate);
+            const today = new Date();
+            let age = today.getFullYear() - birth.getFullYear();
+            const monthDiff = today.getMonth() - birth.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            
+            return age;
+        }
+
+        // ネットワーク描画
+        function drawNetwork() {
+            const container = document.getElementById('network-container');
+            const options = {
+                nodes: {
+                    shape: 'dot',
+                    size: parseInt(document.getElementById('nodeSize').value),
+                    font: {
+                        size: 14,
+                        color: '#333'
+                    },
+                    borderWidth: 2,
+                    shadow: true
+                },
+                edges: {
+                    width: parseInt(document.getElementById('edgeWidth').value),
+                    font: {
+                        size: 12,
+                        color: '#666'
+                    },
+                    smooth: {
+                        type: 'continuous'
+                    }
+                },
+                groups: {
+                    male: {
+                        color: {
+                            background: '#42a5f5',
+                            border: '#1976d2'
+                        }
+                    },
+                    female: {
+                        color: {
+                            background: '#ec407a',
+                            border: '#c2185b'
+                        }
+                    },
+                    unknown: {
+                        color: {
+                            background: '#bdbdbd',
+                            border: '#757575'
+                        }
+                    }
+                },
+                layout: getLayoutOptions(),
+                physics: {
+                    enabled: document.getElementById('physics').value === 'true'
+                },
+                interaction: {
+                    hover: true,
+                    tooltipDelay: 300
+                }
+            };
+
+            network = new vis.Network(container, { nodes, edges }, options);
+
+            // イベントリスナー
+            network.on('click', function(params) {
+                if (params.nodes.length > 0) {
+                    const nodeId = params.nodes[0];
+                    const koala = koalaData.find(k => k.name === nodeId);
+                    if (koala) {
+                        showKoalaDetails(koala);
+                    }
+                }
+            });
+        }
+
+        // レイアウトオプション取得
+        function getLayoutOptions() {
+            const layoutType = document.getElementById('layoutType').value;
+            
+            switch (layoutType) {
+                case 'hierarchical':
+                    return {
+                        hierarchical: {
+                            direction: 'UD',
+                            sortMethod: 'directed',
+                            nodeSpacing: 200,
+                            levelSeparation: 150
+                        }
+                    };
+                case 'force':
+                    return {
+                        improvedLayout: true
+                    };
+                case 'circular':
+                    return {
+                        randomSeed: 2
+                    };
+                default:
+                    return {};
+            }
+        }
+
+        // レイアウト更新
+        function updateLayout() {
+            if (network) {
+                const options = {
+                    layout: getLayoutOptions(),
+                    physics: {
+                        enabled: document.getElementById('physics').value === 'true'
+                    }
+                };
+                network.setOptions(options);
+                network.redraw();
+            }
+        }
+
+        // ノードサイズ更新
+        function updateNodeSize() {
+            const size = parseInt(document.getElementById('nodeSize').value);
+            document.getElementById('nodeSizeValue').textContent = size;
+            
+            if (network) {
+                network.setOptions({
+                    nodes: { size: size }
+                });
+            }
+        }
+
+        // エッジ幅更新
+        function updateEdgeWidth() {
+            const width = parseInt(document.getElementById('edgeWidth').value);
+            document.getElementById('edgeWidthValue').textContent = width;
+            
+            if (network) {
+                network.setOptions({
+                    edges: { width: width }
+                });
+            }
+        }
+
+        // 物理演算更新
+        function updatePhysics() {
+            if (network) {
+                const enabled = document.getElementById('physics').value === 'true';
+                network.setOptions({
+                    physics: { enabled: enabled }
+                });
+            }
+        }
+
+        // 表示値更新
+        function updateDisplayValues() {
+            document.getElementById('nodeSizeValue').textContent = document.getElementById('nodeSize').value;
+            document.getElementById('edgeWidthValue').textContent = document.getElementById('edgeWidth').value;
+        }
+
+        // ネットワーク全体表示
+        function fitNetwork() {
+            if (network) {
+                network.fit();
+            }
+        }
+
+        // オスに注目
+        function focusOnMales() {
+            if (network && koalaData) {
+                const maleNodes = koalaData
+                    .filter(k => getKoalaGroup(k) === 'male')
+                    .map(k => k.name);
+                
+                if (maleNodes.length > 0) {
+                    network.focus(maleNodes[0], {
+                        scale: 1.5,
+                        animation: true
+                    });
+                }
+            }
+        }
+
+        // コアラ詳細表示
+        function showKoalaDetails(koala) {
+            const details = `
+                <strong>🐨 ${koala.name} の詳細情報</strong><br>
+                性別: ${koala.gender}<br>
+                生年月日: ${koala.birthDate || '不明'}<br>
+                両親: ${koala.father || '不明'} × ${koala.mother || '不明'}<br>
+                パートナー数: ${koala.partners.length}匹<br>
+                パートナー: ${koala.partners.join(', ') || 'なし'}
+            `;
+            showMessage(details, 'info');
+        }
+
+        // 統計計算
+        function calculateKoalaStats(data) {
+            const males = data.filter(k => getKoalaGroup(k) === 'male').length;
+            const females = data.filter(k => getKoalaGroup(k) === 'female').length;
+            
+            // 繁殖ペア数計算
+            const breedingPairs = new Set();
+            data.forEach(koala => {
+                koala.partners.forEach(partner => {
+                    const pair = [koala.name, partner].sort().join('|');
+                    breedingPairs.add(pair);
+                });
+            });
+
+            // 世代数計算（簡易版）
+            let generations = 1;
+            data.forEach(koala => {
+                if (koala.father || koala.mother) {
+                    generations = Math.max(generations, 2);
+                }
+            });
+
+            return {
+                total: data.length,
+                males,
+                females,
+                breedingPairs: breedingPairs.size,
+                generations
+            };
+        }
+
+        // SVGエクスポート
+        function exportSvg() {
+            try {
+                if (!network) {
+                    showMessage('家系図が生成されていません', 'error');
+                    return;
+                }
+
+                // SVGエクスポート機能は限定的なため、代替案を提示
+                showMessage('現在の表示をスクリーンショットで保存することをお勧めします。より高度なエクスポート機能は今後追加予定です。', 'info');
+            } catch (error) {
+                showMessage('エクスポートエラー: ' + error.message, 'error');
+            }
+        }
+
+        // すべてクリア
+        function clearAll() {
+            document.getElementById('csvInput').value = '';
+            
+            if (network) {
+                network.destroy();
+                network = null;
+            }
+            
+            document.getElementById('network-container').innerHTML = '';
+            document.getElementById('controlsSection').style.display = 'none';
+            document.getElementById('statsInfo').style.display = 'none';
+            document.getElementById('exportBtn').disabled = true;
+            
+            koalaData = [];
+            nodes = null;
+            edges = null;
+            
+            clearMessages();
+            showMessage('すべてクリアしました', 'success');
+        }
+
+        // メッセージ表示
+        function showMessage(text, type) {
+            const messagesDiv = document.getElementById('messages');
+            let className = 'success-message';
+            
+            if (type === 'error') {
+                className = 'error-message';
+            } else if (type === 'info') {
+                className = 'stats-info';
+            }
+            
+            messagesDiv.innerHTML = `<div class="${className}">${text}</div>`;
+            
+            setTimeout(() => {
+                if (messagesDiv.innerHTML.includes(text)) {
+                    messagesDiv.innerHTML = '';
+                }
+            }, 5000);
+        }
+
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+
+        // 初期化実行
+        window.addEventListener('load', initialize);
+    </script>
+</body>
+</html>
