@@ -1,0 +1,33 @@
+<script src="./familytree.js"></script> 
+<script src="./data.js"></script> 
+<div id="tree"></div>
+<script>
+var options = getOptions();
+
+var chart = new FamilyTree(document.getElementById("tree"), {
+    mouseScrool: FamilyTree.none,
+    scaleInitial: options.scaleInitial,
+    siblingSeparation: 120,
+    template: 'john',
+    nodeBinding: {
+        field_0: "name",
+        field_1: "born",
+        img_0: "img",
+        field_2: "locate",
+    }
+});
+
+chart.load(window.familyData);
+
+function getOptions(){
+  const searchParams = new URLSearchParams(window.location.search);
+  var fit = searchParams.get('fit');
+  var enableSearch = true;
+  var scaleInitial = 1;
+  if (fit == 'yes'){
+    enableSearch = false;
+    scaleInitial = FamilyTree.match.boundary;
+  }
+  return {enableSearch, scaleInitial};
+}
+</script>
