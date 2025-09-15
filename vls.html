@@ -386,6 +386,13 @@
                 </div>
 
                 <div class="control-group">
+                    <label>個体フィルタ</label>
+                    <select id="individualFilter" onchange="updateFilter()">
+                        <option value="">全体表示</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
                     <button class="btn-secondary" onclick="fitNetwork()">全体を表示</button>
                 </div>
             </div>
@@ -433,6 +440,7 @@
         let network = null;
         let nodes, edges;
         let highlightedElements = [];
+        let currentFilter = ''; // フィルタ用の変数を追加
 
         // 初期化
         function initialize() {
@@ -637,6 +645,9 @@
 
                 document.getElementById('controlsSection').style.display = 'block';
                 document.getElementById('exportBtn').disabled = false;
+                
+                // フィルタ選択肢を更新
+                populateIndividualFilter();
 
                 const stats = calculateStats(koalaData);
                 document.getElementById('statsInfo').innerHTML = 
@@ -656,8 +667,15 @@
             const edgeArray = [];
             const nodeIds = new Set();
 
+            // フィルタが適用されている場合は対象個体のみを取得
+            let filteredKoalaData = koalaData;
+            if (currentFilter) {
+                const traceableIds = getTraceableIndividuals(currentFilter);
+                filteredKoalaData = koalaData.filter(koala => traceableIds.includes(koala.name));
+            }
+
             // 個体ノード作成
-            koalaData.forEach(koala => {
+            filteredKoalaData.forEach(koala => {
                 if (!nodeIds.has(koala.name)) {
                     const nodeConfig = {
                         id: koala.name,
@@ -681,11 +699,12 @@
                 }
             });
 
-            // 夫婦ペアと結合ノード作成
+            // 夫婦ペアと結合ノード作成（フィルタ適用後のデータのみ）
             const coupleMap = new Map();
 
-            koalaData.forEach(koala => {
-                if (koala.father && koala.mother) {
+            filteredKoalaData.forEach(koala => {
+                if (koala.father && koala.mother && 
+                    nodeIds.has(koala.father) && nodeIds.has(koala.mother)) {
                     const coupleKey = [koala.father, koala.mother].sort().join('|');
                     if (!coupleMap.has(coupleKey)) {
                         coupleMap.set(coupleKey, []);
@@ -1083,6 +1102,111 @@
             updateHighlightStatus(null, 0);
         }
 
+        // 個体フィルタのセレクトボックスを更新
+        function populateIndividualFilter() {
+            const filterSelect = document.getElementById('individualFilter');
+            
+            // 既存の選択肢をクリア（最初の「全体表示」は残す）
+            while (filterSelect.children.length > 1) {
+                filterSelect.removeChild(filterSelect.lastChild);
+            }
+            
+            // 個体名でソートして選択肢を追加
+            const sortedKoalas = koalaData.sort((a, b) => a.name.localeCompare(b.name));
+            sortedKoalas.forEach(koala => {
+                const option = document.createElement('option');
+                option.value = koala.name;
+                option.textContent = `${koala.name} (${koala.gender})`;
+                filterSelect.appendChild(option);
+            });
+        }
+
+        // 選択した個体から辿れるすべての個体を取得
+        function getTraceableIndividuals(selectedId) {
+            const traceable = new Set();
+            const toProcess = [selectedId];
+            
+            // 再帰的に関連個体を探索
+            while (toProcess.length > 0) {
+                const currentId = toProcess.pop();
+                if (traceable.has(currentId)) continue;
+                
+                traceable.add(currentId);
+                const currentKoala = koalaData.find(k => k.name === currentId);
+                if (!currentKoala) continue;
+                
+                // 両親を追加
+                if (currentKoala.father && !traceable.has(currentKoala.father)) {
+                    toProcess.push(currentKoala.father);
+                }
+                if (currentKoala.mother && !traceable.has(currentKoala.mother)) {
+                    toProcess.push(currentKoala.mother);
+                }
+                
+                // 子どもを追加
+                const children = koalaData.filter(k => 
+                    k.father === currentId || k.mother === currentId
+                );
+                children.forEach(child => {
+                    if (!traceable.has(child.name)) {
+                        toProcess.push(child.name);
+                    }
+                });
+                
+                // パートナーを追加
+                currentKoala.partners.forEach(partner => {
+                    if (!traceable.has(partner)) {
+                        toProcess.push(partner);
+                    }
+                });
+                
+                // 兄弟姉妹を追加
+                if (currentKoala.father && currentKoala.mother) {
+                    const siblings = koalaData.filter(k => 
+                        k.father === currentKoala.father && 
+                        k.mother === currentKoala.mother &&
+                        k.name !== currentId
+                    );
+                    siblings.forEach(sibling => {
+                        if (!traceable.has(sibling.name)) {
+                            toProcess.push(sibling.name);
+                        }
+                    });
+                }
+            }
+            
+            return Array.from(traceable);
+        }
+
+        // フィルタ更新処理
+        function updateFilter() {
+            const filterValue = document.getElementById('individualFilter').value;
+            currentFilter = filterValue;
+            
+            // ハイライトをクリア
+            clearHighlight();
+            
+            // ネットワークを再生成
+            if (koalaData.length > 0) {
+                createNetworkData();
+                
+                // 既存のネットワークがある場合は破棄
+                if (network) {
+                    network.destroy();
+                }
+                
+                drawNetwork();
+                
+                // メッセージを表示
+                if (filterValue) {
+                    const filteredCount = nodes.length - edges.get().filter(e => e.type === 'marriage').length / 2;
+                    showMessage(`フィルタを適用しました: ${filterValue} とその関連個体（${filteredCount}匹を表示）`, 'success');
+                } else {
+                    showMessage('フィルタをクリアしました（全体表示）', 'success');
+                }
+            }
+        }
+
         // レイアウトオプション取得
         function getLayoutOptions() {
             const layoutType = document.getElementById('layoutType').value;
@@ -1317,6 +1441,10 @@
             document.getElementById('statsInfo').style.display = 'none';
             document.getElementById('exportBtn').disabled = true;
             
+            // フィルタもリセット
+            currentFilter = '';
+            document.getElementById('individualFilter').value = '';
+            
             koalaData = [];
             nodes = null;
             edges = null;
@@ -1339,11 +1467,11 @@
             
             messagesDiv.innerHTML = `<div class="${className}">${text}</div>`;
             
-            // setTimeout(() => {
-            //     if (messagesDiv.innerHTML.includes(text)) {
-            //         messagesDiv.innerHTML = '';
-            //     }
-            // }, 6000);
+            setTimeout(() => {
+                if (messagesDiv.innerHTML.includes(text)) {
+                    messagesDiv.innerHTML = '';
+                }
+            }, 6000);
         }
 
         function clearMessages() {
