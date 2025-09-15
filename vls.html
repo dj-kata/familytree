@@ -353,8 +353,8 @@
         }
 
         .legend-circle.female {
-            background: #ec407a;
-            border-color: #c2185b;
+            background: #d32f2f;
+            border-color: #b71c1c;
         }
 
         .legend-circle.unknown {
@@ -387,8 +387,8 @@
         }
 
         .vis-network .vis-node.female {
-            background-color: #ec407a !important;
-            border-color: #c2185b !important;
+            background-color: #d32f2f !important;
+            border-color: #b71c1c !important;
         }
 
         .vis-network .vis-node.unknown {
@@ -444,7 +444,7 @@
         </div>
 
         <div class="input-section">
-            <h3>📝 コアラデータ入力（CSS完全制御）</h3>
+            <h3>📊 コアラデータ入力（CSS完全制御）</h3>
             <div class="data-info">
                 <strong>技術仕様:</strong> JavaScriptはクラス操作のみ、デザインはすべてCSSで管理
                 <div class="csv-format">
@@ -460,7 +460,8 @@
             
             <div class="button-group">
                 <button class="btn-primary" onclick="generateKoalaNetwork()">🌳 家系図を生成</button>
-                <button class="btn-secondary" onclick="loadSampleData()">📝 サンプルデータを読み込む</button>
+                <button class="btn-secondary" onclick="loadSampleData()">📄 サンプルデータを読み込む</button>
+                <button class="btn-secondary" onclick="loadDataFromJS()">📊 data.jsから読み込む</button>
                 <button class="btn-warning" onclick="exportNetwork()" id="exportBtn" disabled>📸 ネットワークを保存</button>
                 <button class="btn-danger" onclick="clearAll()">🗑️ すべてクリア</button>
             </div>
@@ -515,7 +516,7 @@
             <div class="highlight-controls">
                 <h4>🔦 ハイライト機能（CSS制御）</h4>
                 <p>個体をクリックすると、親子関係が緑のシャドウでハイライトされます。<br>
-                <strong>個体の基本色（オス：青、メス：ピンク）は絶対に変更されません。</strong></p>
+                <strong>個体の基本色（オス：青、メス：赤）は絶対に変更されません。</strong></p>
                 <div class="highlight-status" id="highlightStatus">
                     ハイライト: なし
                 </div>
@@ -531,7 +532,7 @@
                     </div>
                     <div class="legend-item">
                         <div class="legend-circle female"></div>
-                        <span>メス（ピンク）</span>
+                        <span>メス（赤）</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-circle unknown"></div>
@@ -602,24 +603,79 @@
             document.querySelector('.header').appendChild(status);
         }
 
+        // data.jsからデータを読み込む
+        function loadDataFromJS() {
+            if (typeof window.familyData === 'undefined') {
+                showMessage('data.jsが読み込まれていないか、familyDataが見つかりません。', 'error');
+                return;
+            }
+
+            try {
+                const csvData = convertFamilyDataToCSV(window.familyData);
+                document.getElementById('csvInput').value = csvData;
+                showMessage(`data.jsから${window.familyData.length}件のコアラデータを読み込みました！`, 'success');
+            } catch (error) {
+                showMessage('data.jsの変換中にエラーが発生しました: ' + error.message, 'error');
+            }
+        }
+
+        // familyDataをCSV形式に変換
+        function convertFamilyDataToCSV(familyData) {
+            const header = '個体名,性別,生年月日,父親,母親,アイコン,現在地';
+            const rows = [header];
+
+            // IDから名前への変換マップを作成
+            const idToName = new Map();
+            familyData.forEach(koala => {
+                if (koala.name && koala.name.trim()) {
+                    idToName.set(koala.id, koala.name.trim());
+                }
+            });
+
+            familyData.forEach(koala => {
+                if (!koala.name || !koala.name.trim()) return;
+
+                const name = koala.name.trim();
+                const gender = parseGender(koala.gender);
+                const birthInfo = koala.born || '';
+                const father = koala.fid !== undefined ? (idToName.get(koala.fid) || '') : '';
+                const mother = koala.mid !== undefined ? (idToName.get(koala.mid) || '') : '';
+                const icon = koala.img || '';
+                const location = koala.locate || '';
+
+                rows.push(`${name},${gender},${birthInfo},${father},${mother},${icon},${location}`);
+            });
+
+            return rows.join('\n');
+        }
+
+        // 性別を日本語に変換
+        function parseGender(gender) {
+            if (!gender) return '';
+            const g = gender.toLowerCase();
+            if (g === 'male' || g === 'オス' || g === '♂') return 'オス';
+            if (g === 'female' || g === 'メス' || g === '♀') return 'メス';
+            return '';
+        }
+
         // サンプルデータ読み込み
         function loadSampleData() {
-            const sampleCSV = `個体名,性別,生年月日,父親,母親,アイコン
-マックス,オス,2015-03-20,,,
-ダイキ,オス,2014-08-15,,,
-ルナ,メス,2016-05-15,,,
-サクラ,メス,2017-08-10,,,
-ハナ,メス,2018-02-28,,,
-ミク,メス,2015-12-03,,,
-ユリ,メス,2016-09-22,,,
-コタロウ,オス,2020-06-12,マックス,ルナ,
-ハルカ,メス,2020-08-25,マックス,サクラ,
-タロウ,オス,2021-03-18,マックス,ハナ,
-ジロウ,オス,2021-07-30,ダイキ,ミク,
-サラ,メス,2021-11-14,ダイキ,ユリ,
-チビ太,オス,2022-04-08,マックス,ルナ,
-ココ,メス,2022-09-19,マックス,サクラ,
-ピーチ,メス,2023-01-25,ダイキ,ミク,`;
+            const sampleCSV = `個体名,性別,生年月日,父親,母親,アイコン,現在地
+マックス,オス,2015-03-20,,,, 東山動植物園
+ダイキ,オス,2014-08-15,,,, 
+ルナ,メス,2016-05-15,,,, 
+サクラ,メス,2017-08-10,,,, 
+ハナ,メス,2018-02-28,,,, 
+ミク,メス,2015-12-03,,,, 
+ユリ,メス,2016-09-22,,,, 
+コタロウ,オス,2020-06-12,マックス,ルナ,, 平川動物公園
+ハルカ,メス,2020-08-25,マックス,サクラ,, 
+タロウ,オス,2021-03-18,マックス,ハナ,, 
+ジロウ,オス,2021-07-30,ダイキ,ミク,, 
+サラ,メス,2021-11-14,ダイキ,ユリ,, 
+ハビ太,オス,2022-04-08,マックス,ルナ,, 
+ココ,メス,2022-09-19,マックス,サクラ,, 
+ピーチ,メス,2023-01-25,ダイキ,ミク,, `;
             
             document.getElementById('csvInput').value = sampleCSV;
             showMessage('CSS管理対応のコアラデータを読み込みました！（ハイライト時も基本色維持）', 'success');
@@ -645,6 +701,7 @@
                                 const father = (row['父親'] || '').trim();
                                 const mother = (row['母親'] || '').trim();
                                 const icon = (row['アイコン'] || row['icon'] || '').trim();
+                                const location = (row['現在地'] || row['locate'] || '').trim();
 
                                 if (!name) {
                                     throw new Error(`${index + 2}行目: 個体名が入力されていません`);
@@ -657,6 +714,7 @@
                                     father,
                                     mother,
                                     icon,
+                                    location,
                                     partners: []
                                 };
                             });
@@ -852,14 +910,26 @@
             }
         }
 
-        // ツールチップ作成
+        // ツールチップ作成（詳細情報追加）
         function createTooltip(koala) {
             let tooltip = `<strong>${koala.name}</strong><br>`;
             tooltip += `性別: ${koala.gender}<br>`;
             
             if (koala.birthDate) {
-                const age = calculateAge(koala.birthDate);
-                tooltip += `生年月日: ${koala.birthDate} (${age}歳)<br>`;
+                // 生年月日と死亡日の解析
+                const birthInfo = parseBirthInfo(koala.birthDate);
+                tooltip += `生年月日: ${birthInfo.birth}`;
+                if (birthInfo.death) {
+                    tooltip += ` - ${birthInfo.death}`;
+                }
+                if (birthInfo.age !== null) {
+                    tooltip += ` (${birthInfo.age}歳)`;
+                }
+                tooltip += `<br>`;
+            }
+            
+            if (koala.location) {
+                tooltip += `現在地: ${koala.location}<br>`;
             }
             
             if (koala.father || koala.mother) {
@@ -882,24 +952,65 @@
             }
 
             if (koala.icon) {
-                tooltip += `アイコン: 有り<br>`;
+                tooltip += `アイコン: あり<br>`;
             }
             
             return tooltip;
         }
 
-        // 年齢計算
-        function calculateAge(birthDate) {
-            const birth = new Date(birthDate);
-            const today = new Date();
-            let age = today.getFullYear() - birth.getFullYear();
-            const monthDiff = today.getMonth() - birth.getMonth();
+        // 生年月日情報の解析
+        function parseBirthInfo(birthString) {
+            const result = { birth: null, death: null, age: null };
             
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-                age--;
+            if (birthString.includes('-')) {
+                const parts = birthString.split('-');
+                result.birth = parts[0].trim();
+                if (parts[1] && parts[1].trim()) {
+                    result.death = parts[1].trim();
+                    result.age = calculateAgeAtDeath(result.birth, result.death);
+                }
+            } else {
+                result.birth = birthString.trim();
+                result.age = calculateAge(result.birth);
             }
             
-            return age;
+            return result;
+        }
+
+        // 死亡時年齢計算
+        function calculateAgeAtDeath(birthDate, deathDate) {
+            try {
+                const birth = new Date(birthDate);
+                const death = new Date(deathDate);
+                let age = death.getFullYear() - birth.getFullYear();
+                const monthDiff = death.getMonth() - birth.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && death.getDate() < birth.getDate())) {
+                    age--;
+                }
+                
+                return age;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        // 年齢計算
+        function calculateAge(birthDate) {
+            try {
+                const birth = new Date(birthDate);
+                const today = new Date();
+                let age = today.getFullYear() - birth.getFullYear();
+                const monthDiff = today.getMonth() - birth.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                    age--;
+                }
+                
+                return age;
+            } catch (error) {
+                return null;
+            }
         }
 
         // ネットワーク描画
@@ -954,7 +1065,7 @@
                         .map(k => k.name);
                     
                     const details = `
-                        <strong>👫 繁殖ペア情報</strong><br>
+                        <strong>💫 繁殖ペア情報</strong><br>
                         父親: ${parent1}<br>
                         母親: ${parent2}<br>
                         子どもの数: ${children.length}匹<br>
@@ -1230,16 +1341,21 @@
                 .filter(k => k.father === koala.name || k.mother === koala.name)
                 .map(k => k.name);
 
+            const birthInfo = koala.birthDate ? parseBirthInfo(koala.birthDate) : { birth: '不明', death: null, age: null };
+
             const details = `
                 <strong>🐨 ${koala.name} の詳細情報</strong><br>
                 性別: ${koala.gender}<br>
-                生年月日: ${koala.birthDate || '不明'}<br>
+                生年月日: ${birthInfo.birth || '不明'}<br>
+                ${birthInfo.death ? `死亡日: ${birthInfo.death}<br>` : ''}
+                ${birthInfo.age !== null ? `年齢: ${birthInfo.age}歳<br>` : ''}
+                現在地: ${koala.location || '不明'}<br>
                 両親: ${koala.father || '不明'} × ${koala.mother || '不明'}<br>
                 繁殖パートナー数: ${koala.partners.length}匹<br>
                 繁殖パートナー: ${koala.partners.join(', ') || 'なし'}<br>
                 子どもの数: ${childrenCount}匹<br>
                 子ども: ${children.join(', ') || 'なし'}<br>
-                アイコン: ${koala.icon ? '有り' : 'なし'}
+                アイコン: ${koala.icon ? 'あり' : 'なし'}
             `;
             showMessage(details, 'info');
         }
@@ -1371,6 +1487,30 @@
                 }
             }, 1000);
         });
+    </script>
+
+    <!-- data.jsの読み込み -->
+    <script>
+        // data.jsを動的に読み込む関数
+        function loadDataJS() {
+            if (typeof window.familyData === 'undefined') {
+                const script = document.createElement('script');
+                script.src = './data.js';
+                script.onload = () => {
+                    console.log('data.js loaded successfully');
+                    if (typeof window.familyData !== 'undefined') {
+                        showMessage(`data.jsから${window.familyData.length}件のデータを検出しました`, 'info');
+                    }
+                };
+                script.onerror = () => {
+                    console.log('data.js not found, manual input mode');
+                };
+                document.head.appendChild(script);
+            }
+        }
+
+        // ページ読み込み時にdata.jsを試行
+        window.addEventListener('DOMContentLoaded', loadDataJS);
     </script>
 </body>
 </html>
