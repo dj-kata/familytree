@@ -308,7 +308,7 @@
                 <div class="control-group">
                     <label>レイアウト</label>
                     <select id="layoutType" onchange="updateLayout()">
-                        <option value="hierarchical">階層表示</option>
+                        <option value="hierarchical" selected>階層表示（推奨）</option>
                         <option value="force">力学的配置</option>
                         <option value="circular">円形配置</option>
                         <option value="random">ランダム配置</option>
@@ -496,7 +496,7 @@
                     `📊 コアラ統計: 総個体数 ${stats.total}匹、オス ${stats.males}匹、メス ${stats.females}匹、繁殖ペア ${stats.breedingPairs}組、世代数 ${stats.generations}世代`;
                 document.getElementById('statsInfo').style.display = 'block';
 
-                showMessage(`コアラ家系図を生成しました！（${stats.total}匹）`, 'success');
+                showMessage(`コアラ家系図を生成しました！（${stats.total}匹、繁殖関係は子どもの両親から自動推定）`, 'success');
 
             } catch (error) {
                 showMessage('エラー: ' + error.message, 'error');
@@ -849,7 +849,7 @@
             };
         }
 
-        // SVGエクスポート
+        // SVGエクスポート（改良版）
         function exportSvg() {
             try {
                 if (!network) {
@@ -857,10 +857,23 @@
                     return;
                 }
 
-                // SVGエクスポート機能は限定的なため、代替案を提示
-                showMessage('現在の表示をスクリーンショットで保存することをお勧めします。より高度なエクスポート機能は今後追加予定です。', 'info');
+                // ネットワーク画面をcanvasとして取得
+                const canvas = network.canvas.body.container.children[0];
+                if (canvas && canvas.toDataURL) {
+                    const dataURL = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = `コアラ家系図_${new Date().getTime()}.png`;
+                    link.href = dataURL;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showMessage('画像をダウンロードしました！', 'success');
+                } else {
+                    showMessage('このブラウザではエクスポート機能が制限されています。スクリーンショットをお試しください。', 'info');
+                }
             } catch (error) {
-                showMessage('エクスポートエラー: ' + error.message, 'error');
+                console.error('Export error:', error);
+                showMessage('エクスポートできませんでした。右クリック → 「名前を付けて画像を保存」をお試しください。', 'info');
             }
         }
 
